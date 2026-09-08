@@ -588,7 +588,7 @@
           <!-- Alert/Status Box -->
           <div id="status-message" class="hidden p-4 mb-6 rounded-2xl text-sm font-semibold border transition-all text-center"></div>
 
-          <!-- 1. Registration Form (3 Hand-filled Inputs + Registration Button) -->
+          <!-- 1. Registration Form (Hand-filled Inputs + Registration Button) -->
           <form id="registration-form" class="space-y-4">
             
             <!-- 1. Full Name Input -->
@@ -599,7 +599,15 @@
               <input type="text" id="reg-name" name="full_name" required placeholder="მაგ. გიორგი ბერიძე" class="w-full bg-[#FAF7F2] border border-[#D8C4B6] focus:border-[#1C3D63] focus:bg-white focus:outline-none rounded-xl px-4 py-3.5 text-sm text-[#222222] font-medium transition-all shadow-inner outline-none"/>
             </div>
 
-            <!-- 2. Phone Number Input -->
+            <!-- 2. Date of Birth Input -->
+            <div class="space-y-1.5 text-left">
+              <label for="reg-dob" class="block text-xs font-bold text-[#1C3D63] uppercase tracking-wider">
+                დაბადების თარიღი <span class="text-red-500">*</span>
+              </label>
+              <input type="date" id="reg-dob" name="birth_date" required class="w-full bg-[#FAF7F2] border border-[#D8C4B6] focus:border-[#1C3D63] focus:bg-white focus:outline-none rounded-xl px-4 py-3.5 text-sm text-[#222222] font-medium transition-all shadow-inner outline-none cursor-pointer"/>
+            </div>
+
+            <!-- 3. Phone Number Input -->
             <div class="space-y-1.5 text-left">
               <label for="reg-phone" class="block text-xs font-bold text-[#1C3D63] uppercase tracking-wider">
                 ტელეფონის ნომერი <span class="text-red-500">*</span>
@@ -607,7 +615,7 @@
               <input type="tel" id="reg-phone" name="phone" required placeholder="მაგ. 599 12 34 56" class="w-full bg-[#FAF7F2] border border-[#D8C4B6] focus:border-[#1C3D63] focus:bg-white focus:outline-none rounded-xl px-4 py-3.5 text-sm text-[#222222] font-medium transition-all shadow-inner outline-none"/>
             </div>
 
-            <!-- 3. Course / Service Input (ხელით შესავსები ტექსტური ველი) -->
+            <!-- 4. Course / Service Input (ხელით შესავსები ტექსტური ველი) -->
             <div class="space-y-1.5 text-left">
               <label for="reg-course" class="block text-xs font-bold text-[#1C3D63] uppercase tracking-wider">
                 რაზე რეგისტრირდებით? <span class="text-red-500">*</span>
@@ -890,11 +898,18 @@
 
       let activeBankKey = "bog";
 
-      // Form & Input Elements (3 hand-filled inputs)
+      // Form & Input Elements (hand-filled inputs)
       const form = document.getElementById("registration-form");
       const nameInput = document.getElementById("reg-name");
+      const dobInput = document.getElementById("reg-dob");
       const phoneInput = document.getElementById("reg-phone");
       const courseInput = document.getElementById("reg-course");
+
+      // Set max date to today for birth date
+      if (dobInput) {
+        const today = new Date().toISOString().split("T")[0];
+        dobInput.setAttribute("max", today);
+      }
 
       const statusDiv = document.getElementById("status-message");
       const submitBtn = document.getElementById("btn-submit-registration");
@@ -927,10 +942,12 @@
       // Pre-fill from URL parameters if available
       const urlParams = new URLSearchParams(window.location.search);
       const preName = urlParams.get("name");
+      const preDob = urlParams.get("dob") || urlParams.get("birth_date");
       const prePhone = urlParams.get("phone");
       const preCourse = urlParams.get("course") || urlParams.get("service") || urlParams.get("topic");
 
       if (preName && nameInput) nameInput.value = preName;
+      if (preDob && dobInput) dobInput.value = preDob;
       if (prePhone && phoneInput) phoneInput.value = prePhone;
       if (preCourse && courseInput) courseInput.value = preCourse;
 
@@ -1141,6 +1158,7 @@
           e.preventDefault();
 
           const fullName = nameInput ? nameInput.value.trim() : "";
+          const dob = dobInput ? dobInput.value.trim() : "";
           const rawPhone = phoneInput ? phoneInput.value.trim() : "";
           const course = courseInput ? courseInput.value.trim() : "";
 
@@ -1151,7 +1169,23 @@
             return;
           }
 
-          // 2. Phone validation
+          // 2. Date of Birth validation
+          if (!dob) {
+            showStatus("⚠️ გთხოვთ მიუთითოთ დაბადების თარიღი.", true);
+            if (dobInput) dobInput.focus();
+            return;
+          }
+
+          // Format DOB (DD/MM/YYYY)
+          let formattedDob = dob;
+          if (dob.includes("-")) {
+            const parts = dob.split("-");
+            if (parts.length === 3) {
+              formattedDob = `${parts[2]}/${parts[1]}/${parts[0]}`;
+            }
+          }
+
+          // 3. Phone validation
           let cleanPhone = rawPhone.replace(/\s+/g, "").replace(/-/g, "").replace(/\+/g, "");
           if (cleanPhone.startsWith("995")) {
             cleanPhone = cleanPhone.substring(3);
@@ -1163,7 +1197,7 @@
             return;
           }
 
-          // 3. Course validation
+          // 4. Course validation
           if (!course || course.length < 2) {
             showStatus("⚠️ გთხოვთ ხელით ჩაწეროთ რაზე რეგისტრირდებით.", true);
             if (courseInput) courseInput.focus();
@@ -1178,6 +1212,7 @@
 
           const telegramMsg = `🔔 *ახალი რეგისტრაცია idc.edu.ge-დან!* 📝\n\n` +
             `👤 *სახელი და გვარი:* ${fullName}\n` +
+            `📅 *დაბადების თარიღი:* ${formattedDob}\n` +
             `📞 *ტელეფონის ნომერი:* ${formattedPhone}\n` +
             `📚 *რაზე რეგისტრირდება:* ${course}\n` +
             `💳 *გადახდა:* რეგისტრაციის ეტაპი\n` +
@@ -1196,6 +1231,7 @@
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
                 fullName,
+                dob: formattedDob,
                 phone: formattedPhone,
                 course,
                 type: "registration",
@@ -1234,9 +1270,18 @@
       if (confirmPayBtn) {
         confirmPayBtn.addEventListener("click", async () => {
           const fullName = nameInput ? nameInput.value.trim() : "მომხმარებელი";
+          const dob = dobInput ? dobInput.value.trim() : "";
           const rawPhone = phoneInput ? phoneInput.value.trim() : "";
           const course = courseInput ? courseInput.value.trim() : "ზოგადი რეგისტრაცია";
           const curBank = (BANKS[activeBankKey] || BANKS.bog).name;
+
+          let formattedDob = dob;
+          if (dob && dob.includes("-")) {
+            const parts = dob.split("-");
+            if (parts.length === 3) {
+              formattedDob = `${parts[2]}/${parts[1]}/${parts[0]}`;
+            }
+          }
 
           const originalText = confirmPayText ? confirmPayText.textContent : "გადახდა დავასრულე";
           confirmPayBtn.disabled = true;
@@ -1245,6 +1290,7 @@
           const timeString = new Date().toLocaleString("ka-GE", { timeZone: "Asia/Tbilisi" });
           const paymentTelegramMsg = `💳 *გადახდის დადასტურება idc.edu.ge-დან!* ✅\n\n` +
             `👤 *სახელი და გვარი:* ${fullName || 'არ არის მითითებული'}\n` +
+            (formattedDob ? `📅 *დაბადების თარიღი:* ${formattedDob}\n` : '') +
             `📞 *ტელეფონის ნომერი:* ${rawPhone || 'არ არის მითითებული'}\n` +
             `📚 *რაზე რეგისტრირდება:* ${course}\n` +
             `🏦 *არჩეული ბანკი:* ${curBank}\n` +
