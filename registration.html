@@ -871,11 +871,9 @@
     document.addEventListener("DOMContentLoaded", () => {
       // Configuration for Telegram Bot & Group Notifications
       // Replace with your active Bot Token and Telegram Group Chat ID (e.g. -100...)
-      const TELEGRAM_CONFIG = {
-        botToken: "8563426842:AAEuhg8EXmAV18NXtlAaiky0ZzWGvNXkJQU", // Telegram Bot Token
-        chatId: "-100443575738", // Telegram Group Chat ID (starts with -100) or user chat ID
-        fallbackChatId: "443575738"
-      };
+      // ტელეგრამის შეტყობინება ახლა n8n webhook-ის მხარეს იგზავნება (ჯგუფში + Airtable + Google Sheet).
+      // ბოტის ტოკენი საიტის საჯარო კოდში აღარ ინახება (უსაფრთხოება).
+      const TELEGRAM_CONFIG = { botToken: "", chatId: "", fallbackChatId: "" };
 
       const BANKS = {
         bog: {
@@ -1132,24 +1130,9 @@
       }
 
       // Send Telegram Notification (Supports Group Chat ID & fallback)
+      // ტელეგრამი ახლა n8n webhook-ის მხარეს იგზავნება — პირდაპირ საიტიდან აღარ.
       async function sendTelegramMessage(text) {
-        const chatTargets = [TELEGRAM_CONFIG.chatId, TELEGRAM_CONFIG.fallbackChatId].filter(Boolean);
-
-        for (const targetId of chatTargets) {
-          try {
-            await fetch(`https://api.telegram.org/bot${TELEGRAM_CONFIG.botToken}/sendMessage`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                chat_id: targetId,
-                text: text,
-                parse_mode: "Markdown"
-              })
-            });
-          } catch (err) {
-            console.warn("Telegram dispatch note:", err);
-          }
-        }
+        return;
       }
 
       // 1. Separate Registration Submit Handler
