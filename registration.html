@@ -937,7 +937,7 @@
       const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
       const isAndroid = /Android/i.test(navigator.userAgent);
 
-      // Pre-fill from URL parameters if available
+      // Pre-fill from URL parameters if available, otherwise check localStorage
       const urlParams = new URLSearchParams(window.location.search);
       const preName = urlParams.get("name");
       const preDob = urlParams.get("dob") || urlParams.get("birth_date");
@@ -948,6 +948,72 @@
       if (preDob && dobInput) dobInput.value = preDob;
       if (prePhone && phoneInput) phoneInput.value = prePhone;
       if (preCourse && courseInput) courseInput.value = preCourse;
+
+      // Auto-fill from localStorage if not provided in URL query string
+      try {
+        let storedFullName = localStorage.getItem("idc_user_fullname") || "";
+        const storedFirst = localStorage.getItem("idc_user_firstname") || localStorage.getItem("user_first_name") || "";
+        const storedLast = localStorage.getItem("idc_user_lastname") || localStorage.getItem("user_last_name") || "";
+        if (!storedFullName && (storedFirst || storedLast)) {
+          storedFullName = `${storedFirst} ${storedLast}`.trim();
+        }
+        let storedPhone = localStorage.getItem("idc_user_phone") || localStorage.getItem("user_phone") || "";
+        let storedDob = localStorage.getItem("idc_user_birthdate") || "";
+
+        // Fallback: check saved_profiles from cosmic/balance models
+        if (!storedFullName || !storedPhone || !storedDob) {
+          const storedProfiles = localStorage.getItem("saved_profiles");
+          if (storedProfiles) {
+            const list = JSON.parse(storedProfiles);
+            if (Array.isArray(list) && list.length > 0) {
+              const p = list[0];
+              if (!storedFullName && p.name) storedFullName = `${p.name} ${p.surname || ''}`.trim();
+              if (!storedPhone && p.phone) storedPhone = p.phone;
+              if (!storedDob && p.year && p.month && p.day) {
+                storedDob = `${p.year}-${String(p.month).padStart(2, '0')}-${String(p.day).padStart(2, '0')}`;
+              }
+            }
+          }
+        }
+
+        if (nameInput && !nameInput.value && storedFullName) nameInput.value = storedFullName;
+        if (dobInput && !dobInput.value && storedDob) dobInput.value = storedDob;
+        if (phoneInput && !phoneInput.value && storedPhone) phoneInput.value = storedPhone;
+      } catch (e) {
+        console.warn("Registration storage read note:", e);
+      }
+
+      // Save to localStorage as user types in registration fields
+      function saveRegistrationDataLocally() {
+        try {
+          const fullName = nameInput ? nameInput.value.trim() : "";
+          const dob = dobInput ? dobInput.value.trim() : "";
+          const phone = phoneInput ? phoneInput.value.trim() : "";
+
+          if (fullName) {
+            localStorage.setItem("idc_user_fullname", fullName);
+            const parts = fullName.split(/\s+/);
+            if (parts.length > 1) {
+              localStorage.setItem("idc_user_firstname", parts[0]);
+              localStorage.setItem("user_first_name", parts[0]);
+              localStorage.setItem("idc_user_lastname", parts.slice(1).join(" "));
+              localStorage.setItem("user_last_name", parts.slice(1).join(" "));
+            } else {
+              localStorage.setItem("idc_user_firstname", fullName);
+              localStorage.setItem("user_first_name", fullName);
+            }
+          }
+
+          if (dob) {
+            localStorage.setItem("idc_user_birthdate", dob);
+          }
+
+          if (phone) {
+            localStorage.setItem("idc_user_phone", phone);
+            localStorage.setItem("user_phone", phone);
+          }
+        } catch (e) {}
+      }
 
       if (urlParams.get("pay") === "true" || urlParams.get("payment") === "true") {
         if (paymentSection) paymentSection.classList.remove("hidden");
@@ -965,7 +1031,22 @@
         updateQrCode();
       }
 
-      if (nameInput) nameInput.addEventListener("input", updatePurposeText);
+      if (nameInput) {
+        nameInput.addEventListener("input", () => {
+          saveRegistrationDataLocally();
+          updatePurposeText();
+        });
+      }
+      if (dobInput) {
+        dobInput.addEventListener("input", saveRegistrationDataLocally);
+        dobInput.addEventListener("change", saveRegistrationDataLocally);
+      }
+      if (phoneInput) {
+        phoneInput.addEventListener("input", () => {
+          saveRegistrationDataLocally();
+          updatePurposeText();
+        });
+      }
       if (courseInput) courseInput.addEventListener("input", updatePurposeText);
 
       // Toggle Payment Section

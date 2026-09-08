@@ -1504,6 +1504,13 @@ function initFormValidation() {
         localStorage.setItem('user_first_name', bookingData.firstName);
         localStorage.setItem('user_last_name', bookingData.lastName);
         localStorage.setItem('user_phone', bookingData.phone);
+        saveUnifiedUserData({
+          firstName: bookingData.firstName,
+          lastName: bookingData.lastName,
+          fullName: `${bookingData.firstName} ${bookingData.lastName}`.trim(),
+          phone: bookingData.phone,
+          email: bookingData.email !== 'N/A' ? bookingData.email : ''
+        });
       } catch (e) {}
 
       // Open inline booking payment step inside modal
@@ -2377,62 +2384,243 @@ function initVisitorCounter() {
 }
 
 /* ==========================================================================
-   13. Global Form Auto-Fill & LocalStorage Persistence
+   13. Global Form Auto-Fill & LocalStorage Persistence (Cross-Form Sync)
    ========================================================================== */
-function initFormPersistence() {
-  const fieldMapping = {
-    'first_name': 'idc_user_firstname',
-    'first-name': 'idc_user_firstname',
-    'last_name': 'idc_user_lastname',
-    'last-name': 'idc_user_lastname',
-    'phone': 'idc_user_phone',
-    'birthdate': 'idc_user_birthdate',
-    'date': 'idc_user_birthdate',
-    'birthtime': 'idc_user_birthtime',
-    'birth-time': 'idc_user_birthtime',
-    'birth_time': 'idc_user_birthtime',
-    'time': 'idc_user_birthtime',
-    'hour': 'idc_user_birthtime'
-  };
+export function getUnifiedUserData() {
+  let firstName = localStorage.getItem('idc_user_firstname') || localStorage.getItem('user_first_name') || '';
+  let lastName = localStorage.getItem('idc_user_lastname') || localStorage.getItem('user_last_name') || '';
+  let fullName = localStorage.getItem('idc_user_fullname') || '';
+  let phone = localStorage.getItem('idc_user_phone') || localStorage.getItem('user_phone') || '';
+  let birthDate = localStorage.getItem('idc_user_birthdate') || '';
+  let birthTime = localStorage.getItem('idc_user_birthtime') || '';
+  let email = localStorage.getItem('idc_user_email') || '';
 
-  const populateFields = () => {
-    document.querySelectorAll('input, select, textarea').forEach(el => {
-      const identifier = (el.name || el.id || '').toLowerCase();
-      if (!identifier) return;
-
-      for (const [key, storageKey] of Object.entries(fieldMapping)) {
-        if (identifier.includes(key)) {
-          const savedValue = localStorage.getItem(storageKey);
-          if (savedValue && !el.value) {
-            el.value = savedValue;
+  // Check saved_profiles (from cosmic / balance models) if any key is missing
+  if (!fullName || !phone || !birthDate) {
+    try {
+      const stored = localStorage.getItem('saved_profiles');
+      if (stored) {
+        const list = JSON.parse(stored);
+        if (Array.isArray(list) && list.length > 0) {
+          const p = list[0];
+          if (!firstName && p.name) firstName = p.name;
+          if (!lastName && p.surname) lastName = p.surname;
+          if (!phone && p.phone) phone = p.phone;
+          if (!birthDate && p.year && p.month && p.day) {
+            birthDate = `${p.year}-${String(p.month).padStart(2, '0')}-${String(p.day).padStart(2, '0')}`;
           }
+          if (!birthTime && p.birthTime) birthTime = p.birthTime;
         }
+      }
+    } catch (e) {}
+  }
+
+  // Synthesize fullName <-> firstName + lastName
+  if (!fullName && (firstName || lastName)) {
+    fullName = `${firstName} ${lastName}`.trim();
+  } else if (fullName && (!firstName || !lastName)) {
+    const parts = fullName.trim().split(/\s+/);
+    if (parts.length > 1) {
+      if (!firstName) firstName = parts[0];
+      if (!lastName) lastName = parts.slice(1).join(' ');
+    } else if (parts.length === 1 && !firstName) {
+      firstName = parts[0];
+    }
+  }
+
+  return { firstName, lastName, fullName, phone, birthDate, birthTime, email };
+}
+
+export function saveUnifiedUserData(data) {
+  if (!data) return;
+  
+  if (data.fullName) {
+    const fn = data.fullName.trim();
+    localStorage.setItem('idc_user_fullname', fn);
+    const parts = fn.split(/\s+/);
+    if (parts.length > 1) {
+      localStorage.setItem('idc_user_firstname', parts[0]);
+      localStorage.setItem('user_first_name', parts[0]);
+      localStorage.setItem('idc_user_lastname', parts.slice(1).join(' '));
+      localStorage.setItem('user_last_name', parts.slice(1).join(' '));
+    } else if (parts.length === 1) {
+      localStorage.setItem('idc_user_firstname', parts[0]);
+      localStorage.setItem('user_first_name', parts[0]);
+    }
+  }
+
+  if (data.firstName) {
+    const f = data.firstName.trim();
+    localStorage.setItem('idc_user_firstname', f);
+    localStorage.setItem('user_first_name', f);
+  }
+
+  if (data.lastName) {
+    const l = data.lastName.trim();
+    localStorage.setItem('idc_user_lastname', l);
+    localStorage.setItem('user_last_name', l);
+  }
+
+  if (data.firstName || data.lastName) {
+    const first = data.firstName || localStorage.getItem('idc_user_firstname') || '';
+    const last = data.lastName || localStorage.getItem('idc_user_lastname') || '';
+    const combined = `${first} ${last}`.trim();
+    if (combined) {
+      localStorage.setItem('idc_user_fullname', combined);
+    }
+  }
+
+  if (data.phone) {
+    const p = data.phone.trim();
+    localStorage.setItem('idc_user_phone', p);
+    localStorage.setItem('user_phone', p);
+  }
+
+  if (data.birthDate) {
+    localStorage.setItem('idc_user_birthdate', data.birthDate.trim());
+  }
+
+  if (data.birthTime) {
+    localStorage.setItem('idc_user_birthtime', data.birthTime.trim());
+  }
+
+  if (data.email) {
+    localStorage.setItem('idc_user_email', data.email.trim());
+  }
+}
+
+function initFormPersistence() {
+  const populateFields = () => {
+    const data = getUnifiedUserData();
+
+    document.querySelectorAll('input, select, textarea').forEach(el => {
+      // Don't overwrite if element already has a user-entered value
+      if (el.value && el.value.trim() !== '') return;
+      if (el.type === 'hidden' || el.type === 'submit' || el.type === 'button' || el.type === 'radio' || el.type === 'checkbox') return;
+
+      const id = (el.id || '').toLowerCase();
+      const name = (el.name || '').toLowerCase();
+      const placeholder = (el.placeholder || '').toLowerCase();
+      const key = `${id} ${name} ${placeholder}`;
+
+      // 1. Full Name fields (e.g. reg-name, booking-client-name, name="full_name", etc.)
+      const isFullName = id === 'reg-name' || id === 'booking-client-name' || name === 'full_name' || name === 'client_name' ||
+        key.includes('fullname') || key.includes('full-name') || key.includes('full_name') ||
+        (key.includes('სახელი') && key.includes('გვარი'));
+
+      if (isFullName) {
+        if (data.fullName) {
+          el.value = data.fullName;
+        }
+        return;
+      }
+
+      // 2. First Name fields (e.g. name="first_name", id="profile-name", placeholder="სახელი")
+      const isFirstName = name === 'first_name' || name === 'firstname' || id === 'profile-name' ||
+        id === 'first_name' || id === 'first-name' || key.includes('first_name') || key.includes('firstname') ||
+        (key.includes('სახელი') && !key.includes('გვარი'));
+
+      if (isFirstName) {
+        if (data.firstName) {
+          el.value = data.firstName;
+        }
+        return;
+      }
+
+      // 3. Last Name fields (e.g. name="last_name", id="profile-surname", placeholder="გვარი")
+      const isLastName = name === 'last_name' || name === 'lastname' || id === 'profile-surname' ||
+        id === 'last_name' || id === 'last-name' || key.includes('last_name') || key.includes('lastname') ||
+        key.includes('გვარი') || key.includes('surname');
+
+      if (isLastName) {
+        if (data.lastName) {
+          el.value = data.lastName;
+        }
+        return;
+      }
+
+      // 4. Phone fields (e.g. name="phone", id="reg-phone", id="profile-phone", id="booking-client-phone")
+      const isPhone = el.type === 'tel' || name === 'phone' || id === 'reg-phone' || id === 'profile-phone' ||
+        id === 'booking-client-phone' || key.includes('phone') || key.includes('ტელ') || key.includes('mobile');
+
+      if (isPhone) {
+        if (data.phone) {
+          el.value = data.phone;
+        }
+        return;
+      }
+
+      // 5. Date of Birth fields (e.g. id="reg-dob", name="birth_date", etc.)
+      const isBirthDate = id === 'reg-dob' || name === 'birth_date' || name === 'birthdate' ||
+        key.includes('birthdate') || key.includes('birth_date') || key.includes('დაბადებ');
+
+      if (isBirthDate) {
+        if (data.birthDate) {
+          el.value = data.birthDate;
+        }
+        return;
+      }
+
+      // 6. Email fields
+      const isEmail = el.type === 'email' || key.includes('email') || key.includes('mail') || key.includes('ფოსტა');
+      if (isEmail) {
+        if (data.email) {
+          el.value = data.email;
+        }
+        return;
       }
     });
   };
 
-  // Populate immediately on init & retry after DOM updates / modal opens
+  // Populate immediately on init & retry as dynamic elements render
   populateFields();
-  setTimeout(populateFields, 200);
+  setTimeout(populateFields, 100);
+  setTimeout(populateFields, 300);
   setTimeout(populateFields, 800);
 
-  // Global listener: Save input values into localStorage as user types
-  document.addEventListener('input', (e) => {
+  // Global listener: Save input values into unified storage as user types or changes fields
+  const handleInputChange = (e) => {
     const el = e.target;
-    const identifier = (el.name || el.id || '').toLowerCase();
-    if (!identifier || !el.value) return;
+    if (!el || !el.tagName || !['INPUT', 'SELECT', 'TEXTAREA'].includes(el.tagName)) return;
+    if (el.type === 'password' || el.type === 'submit' || el.type === 'button') return;
 
-    for (const [key, storageKey] of Object.entries(fieldMapping)) {
-      if (identifier.includes(key)) {
-        localStorage.setItem(storageKey, el.value.trim());
-      }
+    const val = el.value ? el.value.trim() : '';
+    if (!val) return;
+
+    const id = (el.id || '').toLowerCase();
+    const name = (el.name || '').toLowerCase();
+    const placeholder = (el.placeholder || '').toLowerCase();
+    const key = `${id} ${name} ${placeholder}`;
+
+    if (id === 'reg-name' || id === 'booking-client-name' || name === 'full_name' || name === 'client_name' ||
+        (key.includes('სახელი') && key.includes('გვარი'))) {
+      saveUnifiedUserData({ fullName: val });
+    } else if (name === 'first_name' || id === 'profile-name' || (key.includes('სახელი') && !key.includes('გვარი'))) {
+      saveUnifiedUserData({ firstName: val });
+    } else if (name === 'last_name' || id === 'profile-surname' || key.includes('გვარი') || key.includes('surname')) {
+      saveUnifiedUserData({ lastName: val });
+    } else if (el.type === 'tel' || key.includes('phone') || key.includes('ტელ')) {
+      saveUnifiedUserData({ phone: val });
+    } else if (id === 'reg-dob' || key.includes('birthdate') || key.includes('birth_date') || key.includes('დაბადებ')) {
+      saveUnifiedUserData({ birthDate: val });
+    } else if (el.type === 'email' || key.includes('email') || key.includes('mail')) {
+      saveUnifiedUserData({ email: val });
     }
-  });
+  };
 
-  // Re-populate when booking modal opens
+  document.addEventListener('input', handleInputChange);
+  document.addEventListener('change', handleInputChange);
+
+  // Re-populate when booking modal or any interactive accordion/step opens
   document.addEventListener('click', (e) => {
-    if (e.target && (e.target.classList.contains('booking-btn') || e.target.closest('.booking-btn'))) {
+    if (e.target && (
+      e.target.classList.contains('booking-btn') || 
+      e.target.closest('.booking-btn') || 
+      e.target.id === 'modal-booking-next' ||
+      e.target.closest('#booking-modal-form')
+    )) {
       setTimeout(populateFields, 50);
+      setTimeout(populateFields, 200);
     }
   });
 }

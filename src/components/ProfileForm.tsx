@@ -180,20 +180,76 @@ interface ProfileFormProps {
 }
 
 export const ProfileForm: React.FC<ProfileFormProps> = ({ onProfileSaved, savedProfile, loading }) => {
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
+  const [firstName, setFirstName] = useState(() => {
+    return savedProfile?.name || localStorage.getItem("idc_user_firstname") || localStorage.getItem("user_first_name") || "";
+  });
+  const [lastName, setLastName] = useState(() => {
+    return savedProfile?.surname || localStorage.getItem("idc_user_lastname") || localStorage.getItem("user_last_name") || "";
+  });
   const [birthPlace, setBirthPlace] = useState("საქართველო");
-  const [day, setDay] = useState(1);
-  const [month, setMonth] = useState(1);
-  const [year, setYear] = useState(1995);
-  const [calMonth, setCalMonth] = useState(1);
-  const [calYear, setCalYear] = useState(1995);
-  const [dateInputText, setDateInputText] = useState("01 / 01 / 1995");
+  const [day, setDay] = useState(() => {
+    if (savedProfile?.day) return savedProfile.day;
+    const b = localStorage.getItem("idc_user_birthdate");
+    if (b && b.includes("-")) {
+      const parts = b.split("-");
+      if (parts.length === 3 && parseInt(parts[2])) return parseInt(parts[2]);
+    }
+    return 1;
+  });
+  const [month, setMonth] = useState(() => {
+    if (savedProfile?.month) return savedProfile.month;
+    const b = localStorage.getItem("idc_user_birthdate");
+    if (b && b.includes("-")) {
+      const parts = b.split("-");
+      if (parts.length === 3 && parseInt(parts[1])) return parseInt(parts[1]);
+    }
+    return 1;
+  });
+  const [year, setYear] = useState(() => {
+    if (savedProfile?.year) return savedProfile.year;
+    const b = localStorage.getItem("idc_user_birthdate");
+    if (b && b.includes("-")) {
+      const parts = b.split("-");
+      if (parts.length === 3 && parseInt(parts[0])) return parseInt(parts[0]);
+    }
+    return 1995;
+  });
+  const [calMonth, setCalMonth] = useState(() => {
+    if (savedProfile?.month) return savedProfile.month;
+    const b = localStorage.getItem("idc_user_birthdate");
+    if (b && b.includes("-")) {
+      const parts = b.split("-");
+      if (parts.length === 3 && parseInt(parts[1])) return parseInt(parts[1]);
+    }
+    return 1;
+  });
+  const [calYear, setCalYear] = useState(() => {
+    if (savedProfile?.year) return savedProfile.year;
+    const b = localStorage.getItem("idc_user_birthdate");
+    if (b && b.includes("-")) {
+      const parts = b.split("-");
+      if (parts.length === 3 && parseInt(parts[0])) return parseInt(parts[0]);
+    }
+    return 1995;
+  });
+  const [dateInputText, setDateInputText] = useState(() => {
+    if (savedProfile?.day && savedProfile?.month && savedProfile?.year) {
+      return `${String(savedProfile.day).padStart(2, '0')} / ${String(savedProfile.month).padStart(2, '0')} / ${savedProfile.year}`;
+    }
+    const b = localStorage.getItem("idc_user_birthdate");
+    if (b && b.includes("-")) {
+      const parts = b.split("-");
+      if (parts.length === 3) {
+        return `${String(parts[2]).padStart(2, '0')} / ${String(parts[1]).padStart(2, '0')} / ${parts[0]}`;
+      }
+    }
+    return "01 / 01 / 1995";
+  });
   const [birthTime, setBirthTime] = useState(() => {
     return savedProfile?.birthTime || localStorage.getItem("idc_user_birthtime") || "";
   });
   const [phone, setPhone] = useState(() => {
-    return savedProfile?.phone || "";
+    return savedProfile?.phone || localStorage.getItem("idc_user_phone") || localStorage.getItem("user_phone") || "";
   });
   const [selectedTheme, setSelectedTheme] = useState<CalculationType | null>(() => {
     return CalculationType.HOROSCOPE;
@@ -567,6 +623,14 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({ onProfileSaved, savedP
       list.unshift(profileObj);
       localStorage.setItem("saved_profiles", JSON.stringify(list));
       localStorage.setItem("user_phone", normalizedPhone);
+      localStorage.setItem("idc_user_phone", normalizedPhone);
+      localStorage.setItem("idc_user_firstname", cleanName);
+      localStorage.setItem("user_first_name", cleanName);
+      localStorage.setItem("idc_user_lastname", cleanSurname);
+      localStorage.setItem("user_last_name", cleanSurname);
+      localStorage.setItem("idc_user_fullname", `${cleanName} ${cleanSurname}`);
+      const isoBirth = `${finalYear}-${String(finalMonth).padStart(2, '0')}-${String(finalDay).padStart(2, '0')}`;
+      localStorage.setItem("idc_user_birthdate", isoBirth);
       if (birthTime.trim()) {
         localStorage.setItem("idc_user_birthtime", birthTime.trim());
       } else {

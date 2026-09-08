@@ -2480,20 +2480,59 @@
 
       function playErrorSound() {}
 
-      // Pre-fill and auto-fill Profile if phone number is saved locally
+      // Pre-fill and auto-fill Profile from local storage instantly, with backend fallback
       async function autofillProfile() {
-        const savedPhone = localStorage.getItem("user_phone");
-        if (savedPhone) {
+        const savedPhone = localStorage.getItem("idc_user_phone") || localStorage.getItem("user_phone");
+        const savedFirst = localStorage.getItem("idc_user_firstname") || localStorage.getItem("user_first_name") || "";
+        const savedLast = localStorage.getItem("idc_user_lastname") || localStorage.getItem("user_last_name") || "";
+
+        if (savedFirst && profileNameInput && !profileNameInput.value) {
+          profileNameInput.value = savedFirst;
+        }
+        if (savedLast && profileSurnameInput && !profileSurnameInput.value) {
+          profileSurnameInput.value = savedLast;
+        }
+        if (savedPhone && profilePhoneInput && !profilePhoneInput.value) {
           profilePhoneInput.value = savedPhone;
+        }
+
+        if (savedPhone) {
           try {
             const res = await fetch(`https://meticulous-oyster.pikapod.net/webhook/profile?phone=${encodeURIComponent(savedPhone)}`, { headers: { "x-profile-secret": PROFILE_API_SECRET } });
             const data = await res.json();
             if (data.success && data.exists) {
-              profileNameInput.value = data.name || "";
-              profileSurnameInput.value = data.surname || "";
+              if (profileNameInput && !profileNameInput.value) profileNameInput.value = data.name || "";
+              if (profileSurnameInput && !profileSurnameInput.value) profileSurnameInput.value = data.surname || "";
             }
           } catch (e) {}
         }
+      }
+
+      // Sync balance profile fields into unified storage in real-time
+      if (profileNameInput) {
+        profileNameInput.addEventListener("input", () => {
+          const val = profileNameInput.value.trim();
+          localStorage.setItem("idc_user_firstname", val);
+          localStorage.setItem("user_first_name", val);
+          const last = (profileSurnameInput ? profileSurnameInput.value.trim() : "") || localStorage.getItem("idc_user_lastname") || "";
+          if (val || last) localStorage.setItem("idc_user_fullname", `${val} ${last}`.trim());
+        });
+      }
+      if (profileSurnameInput) {
+        profileSurnameInput.addEventListener("input", () => {
+          const val = profileSurnameInput.value.trim();
+          localStorage.setItem("idc_user_lastname", val);
+          localStorage.setItem("user_last_name", val);
+          const first = (profileNameInput ? profileNameInput.value.trim() : "") || localStorage.getItem("idc_user_firstname") || "";
+          if (first || val) localStorage.setItem("idc_user_fullname", `${first} ${val}`.trim());
+        });
+      }
+      if (profilePhoneInput) {
+        profilePhoneInput.addEventListener("input", () => {
+          const val = profilePhoneInput.value.trim();
+          localStorage.setItem("idc_user_phone", val);
+          localStorage.setItem("user_phone", val);
+        });
       }
 
       // Check for share parameters in URL query string on load
