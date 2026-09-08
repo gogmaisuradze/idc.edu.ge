@@ -578,7 +578,7 @@
             <div>
               <span class="moodboard-badge mb-3">ონლაინ რეგისტრაცია</span>
               <h1 class="text-2xl sm:text-3xl font-headline italic text-[#1C3D63]">რეგისტრაციის ფორმა</h1>
-              <p class="text-xs sm:text-sm text-[#3B5E63] mt-2 font-light">შეავსეთ 3 ველი რეგისტრაციისთვის. გადახდა შესაძლებელია სურვილისამებრ.</p>
+              <p class="text-xs sm:text-sm text-[#3B5E63] mt-2 font-light">შეავსეთ 3 ველი რეგისტრაციისთვის.</p>
             </div>
             <div class="bg-[#F4F7F7] border border-[#D8C4B6] p-3 rounded-2xl hidden sm:flex items-center justify-center text-[#E0AC6B] shadow-sm">
               <span class="material-symbols-outlined text-3xl">how_to_reg</span>
@@ -615,7 +615,7 @@
               <input type="text" id="reg-course" name="course" required placeholder="მაგ. WAPP ფსიქოთერაპია, ქოუჩინგი, კონფერენცია, არტთერაპია..." class="w-full bg-[#FAF7F2] border border-[#D8C4B6] focus:border-[#1C3D63] focus:bg-white focus:outline-none rounded-xl px-4 py-3.5 text-sm text-[#222222] font-medium transition-all shadow-inner outline-none"/>
             </div>
 
-            <!-- Action Buttons: Registration (Submit) and Optional Payment Toggle -->
+            <!-- Action Buttons: Registration (Submit) and Payment Toggle -->
             <div class="pt-4 flex flex-col sm:flex-row gap-3">
               <!-- Primary Registration Button -->
               <button type="submit" id="btn-submit-registration" class="flex-1 bg-[#1C3D63] hover:bg-[#254F7F] active:scale-[0.99] text-white py-4 px-6 rounded-2xl font-bold text-base transition-all duration-300 shadow-md flex items-center justify-center gap-2.5 cursor-pointer">
@@ -623,23 +623,22 @@
                 <span id="btn-submit-text">რეგისტრაცია</span>
               </button>
 
-              <!-- Optional Payment Toggle Button -->
+              <!-- Payment Toggle Button -->
               <button type="button" id="btn-toggle-payment" class="sm:w-auto bg-[#FAF7F2] hover:bg-[#F4F7F7] border border-[#D8C4B6] hover:border-[#1C3D63] text-[#1C3D63] active:scale-[0.99] py-4 px-5 rounded-2xl font-bold text-xs sm:text-sm transition-all duration-300 shadow-sm flex items-center justify-center gap-2 cursor-pointer">
                 <span class="material-symbols-outlined text-lg text-[#E0AC6B]">account_balance_wallet</span>
-                <span>გადახდა (სურვილისამებრ)</span>
+                <span>გადახდა</span>
                 <span class="material-symbols-outlined text-base transition-transform duration-300" id="payment-chevron">expand_more</span>
               </button>
             </div>
           </form>
 
-          <!-- 2. Optional Payment Section (Collapsible - booking payment style) -->
+          <!-- 2. Payment Section (Collapsible - booking payment style) -->
           <div id="payment-section" class="hidden mt-8 pt-8 border-t border-[#D8C4B6]/60 transition-all duration-300">
             <div class="flex items-center justify-between mb-4">
               <div class="flex items-center gap-2">
                 <span class="material-symbols-outlined text-[#E0AC6B] text-xl">payments</span>
-                <h3 class="text-sm sm:text-base font-headline italic font-bold text-[#1C3D63]">საბანკო გადახდის რეკვიზიტები (სურვილისამებრ)</h3>
+                <h3 class="text-sm sm:text-base font-headline italic font-bold text-[#1C3D63]">საბანკო გადახდის რეკვიზიტები</h3>
               </div>
-              <span class="text-[10px] bg-[#E0AC6B]/20 text-[#1C3D63] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider font-sans">არასავალდებულო</span>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-5 items-start">
@@ -1181,7 +1180,7 @@
             `👤 *სახელი და გვარი:* ${fullName}\n` +
             `📞 *ტელეფონის ნომერი:* ${formattedPhone}\n` +
             `📚 *რაზე რეგისტრირდება:* ${course}\n` +
-            `💳 *გადახდა:* სურვილისამებრ (რეგისტრაციის ეტაპი)\n` +
+            `💳 *გადახდა:* რეგისტრაციის ეტაპი\n` +
             `⏰ *თარიღი და დრო:* ${timeString}`;
 
           try {
@@ -1206,7 +1205,7 @@
           } catch (e) {}
 
           showStatus(
-            `✨ <strong>გმადლობთ, ${fullName}!</strong><br/>თქვენი რეგისტრაცია წარმატებით გაიგზავნა! ადმინისტრაცია მალე დაგიკავშირდებათ მითითებულ ნომერზე (${formattedPhone}).<br/><span class="text-xs text-[#3B5E63] mt-1 inline-block">თუ გსურთ საფასურის გადახდაც, შეგიძლიათ ისარგებლოთ ქვემოთ მოცემული „გადახდა (სურვილისამებრ)“ განყოფილებით.</span>`,
+            `✨ <strong>გმადლობთ, ${fullName}!</strong><br/>თქვენი რეგისტრაცია წარმატებით გაიგზავნა! ადმინისტრაცია მალე დაგიკავშირდებათ მითითებულ ნომერზე (${formattedPhone}).<br/><span class="text-xs text-[#3B5E63] mt-1 inline-block">საფასურის გადასახდელად შეგიძლიათ ისარგებლოთ ქვემოთ მოცემული „გადახდა“ განყოფილებით.</span>`,
             false
           );
 
