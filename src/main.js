@@ -1175,8 +1175,7 @@ function initBookingModal() {
   document.addEventListener('click', (e) => {
     const btn = e.target && (
       e.target.closest('.booking-btn') ||
-      e.target.closest('[data-booking-trigger]') ||
-      e.target.closest('a[href*="registration.html"]')
+      e.target.closest('[data-booking-trigger]')
     );
     if (btn) {
       if (btn.closest('#booking-modal')) return;
@@ -1194,7 +1193,7 @@ function initBookingModal() {
   const bookParam = urlParams.get('book') || urlParams.get('booking');
   const courseParam = urlParams.get('course') || urlParams.get('service') || urlParams.get('cat');
 
-  if (bookParam || window.location.hash === '#book' || window.location.hash === '#booking' || (isRegPage && !urlParams.get('pay_mobile'))) {
+  if (bookParam || window.location.hash === '#book' || window.location.hash === '#booking') {
     const target = resolveBookingTarget();
     if (courseParam) {
       const eduKeywords = ['wapp', 'erickson', 'art', 'practical', 'master', 'seminar'];
