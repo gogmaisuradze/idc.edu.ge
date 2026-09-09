@@ -1311,6 +1311,7 @@ function initBookingModal() {
 
   if (togglePaymentBtn && paymentSection) {
     togglePaymentBtn.addEventListener('click', () => {
+      togglePaymentBtn.classList.remove('animate-pulse', 'ring-4', 'ring-[#E0AC6B]/40');
       const isHidden = paymentSection.classList.contains('hidden');
       if (isHidden) {
         paymentSection.classList.remove('hidden');
@@ -1421,14 +1422,10 @@ function initBookingModal() {
       submitBtn.className = 'flex-1 bg-emerald-600 text-white py-4 px-6 rounded-2xl font-bold text-sm uppercase tracking-wider transition-all shadow-lg flex items-center justify-center gap-2 cursor-default';
     }
 
-    setTimeout(() => {
-      closeModal();
-      if (submitBtn) {
-        submitBtn.disabled = false;
-        submitBtn.className = 'flex-1 bg-[#1C3D63] hover:bg-[#254F7F] active:scale-[0.99] text-white py-4 px-6 rounded-2xl font-bold text-sm uppercase tracking-wider transition-all duration-300 shadow-md flex items-center justify-center gap-2.5 cursor-pointer';
-      }
-      if (submitBtnText) submitBtnText.textContent = 'ვიზიტის დაჯავშნა';
-    }, 3000);
+    // Highlight/color the payment button as requested
+    if (togglePaymentBtn) {
+      togglePaymentBtn.className = 'sm:w-auto bg-[#E0AC6B] hover:bg-[#d09955] text-[#1C3D63] border-2 border-[#1C3D63] active:scale-[0.99] py-4 px-5 rounded-2xl font-black text-xs sm:text-sm transition-all duration-300 shadow-lg flex items-center justify-center gap-2 cursor-pointer ring-4 ring-[#E0AC6B]/40 animate-pulse';
+    }
   }
 
   if (step2Form) {
