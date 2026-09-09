@@ -1288,7 +1288,14 @@
             console.error("Telegram send error:", error);
           }
 
-          // Webhook backup
+          // event_id — ბრაუზერისა და სერვერის (CAPI) მოვლენის გასაერთიანებლად (dedup)
+          const idcCookie = (nm) => { const m = document.cookie.match("(^|;)\\s*" + nm + "=([^;]+)"); return m ? m[2] : ""; };
+          const capiEventId = "lead." + Date.now() + "." + Math.random().toString(36).slice(2);
+
+          // Meta Pixel — ლიდი (browser), იმავე event_id-ით (სენსიტიური დეტალების გარეშე)
+          if (window.fbq) window.fbq("track", "Lead", {}, { eventID: capiEventId });
+
+          // Webhook backup (→ ჯგუფი + Airtable + Sheet + Meta CAPI)
           try {
             fetch("https://meticulous-oyster.pikapod.net/webhook/registration", {
               method: "POST",
@@ -1299,13 +1306,14 @@
                 phone: formattedPhone,
                 course,
                 type: "registration",
-                timestamp: new Date().toISOString()
+                timestamp: new Date().toISOString(),
+                event_id: capiEventId,
+                event_source_url: window.location.href,
+                fbp: idcCookie("_fbp"),
+                fbc: idcCookie("_fbc")
               })
             }).catch(() => {});
           } catch (e) {}
-
-          // Meta Pixel — ლიდი (სენსიტიური დეტალების გარეშე)
-          if (window.fbq) window.fbq("track", "Lead");
 
           showStatus(
             `✨ <strong>გმადლობთ, ${fullName}!</strong><br/>თქვენი რეგისტრაცია წარმატებით გაიგზავნა! ადმინისტრაცია მალე დაგიკავშირდებათ მითითებულ ნომერზე (${formattedPhone}).<br/><span class="text-xs text-[#3B5E63] mt-1 inline-block">საფასურის გადასახდელად შეგიძლიათ ისარგებლოთ ქვემოთ მოცემული „გადახდა“ განყოფილებით.</span>`,
