@@ -643,16 +643,16 @@ function initBookingModal() {
               </div>
             </div>
 
-            <!-- Action Buttons: 1. Main Booking Submit, 2. Toggle Payment -->
-            <div class="flex flex-col sm:flex-row gap-3 pt-1">
+            <!-- Action Buttons: 1. Main Booking Submit, 2. Toggle Payment (Identical to registration.html) -->
+            <div class="pt-2 flex flex-col sm:flex-row gap-3">
               <!-- Submit Button -->
-              <button type="submit" id="booking-final-submit-btn" class="flex-1 bg-[#1C3D63] hover:bg-[#254F7F] active:scale-[0.99] text-white py-3.5 px-6 rounded-xl font-bold text-sm uppercase tracking-wider transition-all duration-300 shadow-md flex items-center justify-center gap-2.5 cursor-pointer">
+              <button type="submit" id="booking-final-submit-btn" class="flex-1 bg-[#1C3D63] hover:bg-[#254F7F] active:scale-[0.99] text-white py-4 px-6 rounded-2xl font-bold text-sm uppercase tracking-wider transition-all duration-300 shadow-md flex items-center justify-center gap-2.5 cursor-pointer">
                 <span class="material-symbols-outlined text-lg text-[#E0AC6B]">check_circle</span>
                 <span id="booking-final-submit-text">ვიზიტის დაჯავშნა</span>
               </button>
 
               <!-- Payment Toggle Button -->
-              <button type="button" id="modal-btn-toggle-payment" class="sm:w-auto bg-[#FAF7F2] hover:bg-[#F4F7F7] border border-[#D8C4B6] hover:border-[#1C3D63] text-[#1C3D63] active:scale-[0.99] py-3.5 px-5 rounded-xl font-bold text-xs sm:text-sm transition-all duration-300 shadow-sm flex items-center justify-center gap-2 cursor-pointer">
+              <button type="button" id="modal-btn-toggle-payment" class="sm:w-auto bg-[#FAF7F2] hover:bg-[#F4F7F7] border border-[#D8C4B6] hover:border-[#1C3D63] text-[#1C3D63] active:scale-[0.99] py-4 px-5 rounded-2xl font-bold text-xs sm:text-sm transition-all duration-300 shadow-sm flex items-center justify-center gap-2 cursor-pointer">
                 <span class="material-symbols-outlined text-lg text-[#E0AC6B]">account_balance_wallet</span>
                 <span>გადახდა</span>
                 <span class="material-symbols-outlined text-base transition-transform duration-300" id="modal-payment-chevron">expand_more</span>
@@ -1226,7 +1226,7 @@ function initBookingModal() {
     });
   }
 
-  // Payment section collapsible toggle
+  // Payment section collapsible toggle (Identical behavior to registration.html)
   const togglePaymentBtn = document.getElementById('modal-btn-toggle-payment');
   const paymentSection = document.getElementById('modal-payment-section');
   const paymentChevron = document.getElementById('modal-payment-chevron');
@@ -1236,15 +1236,15 @@ function initBookingModal() {
       const isHidden = paymentSection.classList.contains('hidden');
       if (isHidden) {
         paymentSection.classList.remove('hidden');
-        if (paymentChevron) paymentChevron.textContent = 'expand_less';
+        if (paymentChevron) paymentChevron.style.transform = 'rotate(180deg)';
         updateModalPurposeText();
         switchBank(activeBankKey);
         setTimeout(() => {
-          paymentSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          paymentSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }, 100);
       } else {
         paymentSection.classList.add('hidden');
-        if (paymentChevron) paymentChevron.textContent = 'expand_more';
+        if (paymentChevron) paymentChevron.style.transform = 'rotate(0deg)';
       }
     });
   }
