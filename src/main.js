@@ -63,6 +63,46 @@ function initCookieConsent() {
   document.body.appendChild(bar);
 }
 
+// Global Toast Notification Helper
+function showToast(message) {
+  let toast = document.getElementById('toast-container');
+  let toastMessage = document.getElementById('toast-message');
+
+  if (!toast) {
+    const toastHTML = `
+      <div id="toast-container" class="fixed bottom-8 right-8 z-[200] transform translate-y-24 opacity-0 pointer-events-none transition-all duration-500 max-w-sm w-full">
+        <div class="bg-[#FFFFFF] border border-[#D8C4B6] p-6 rounded-2xl shadow-[0_15px_40px_rgba(28,61,99,0.15)] flex items-start gap-4">
+          <div class="bg-[#F4F7F7] border border-[#D8C4B6] p-2 rounded-xl text-[#E0AC6B]">
+            <span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">task_alt</span>
+          </div>
+          <div>
+            <h4 class="font-headline italic text-[#1C3D63] text-lg">გაგზავნილია!</h4>
+            <p class="text-xs text-[#3B5E63] mt-1" id="toast-message">${message || 'შეტყობინება წარმატებით გაიგზავნა.'}</p>
+          </div>
+        </div>
+      </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', toastHTML);
+    toast = document.getElementById('toast-container');
+    toastMessage = document.getElementById('toast-message');
+  }
+
+  if (toastMessage && message) {
+    toastMessage.textContent = message;
+  }
+  
+  if (toast) {
+    toast.classList.remove('translate-y-24', 'opacity-0', 'pointer-events-none');
+    toast.classList.add('translate-y-0', 'opacity-100');
+
+    setTimeout(() => {
+      toast.classList.remove('translate-y-0', 'opacity-100');
+      toast.classList.add('translate-y-24', 'opacity-0', 'pointer-events-none');
+    }, 4500);
+  }
+}
+window.showToast = showToast;
+
 const initAll = () => {
   initCookieConsent();
   initMobileMenu();
@@ -1251,91 +1291,105 @@ function initBookingModal() {
 
   // Step 2 Form submission (Final Booking Button)
   const step2Form = document.getElementById('booking-step2-form');
-  if (step2Form) {
-    step2Form.addEventListener('submit', async (e) => {
-      e.preventDefault();
+  const submitBtn = document.getElementById('booking-final-submit-btn');
+  const submitBtnText = document.getElementById('booking-final-submit-text');
 
-      const nameInput = document.getElementById('booking-client-name');
-      const phoneInput = document.getElementById('booking-client-phone');
-      const emailInput = document.getElementById('booking-client-email');
-      const notesInput = document.getElementById('booking-client-notes');
-      const submitBtn = document.getElementById('booking-final-submit-btn');
-      const submitBtnText = document.getElementById('booking-final-submit-text');
+  async function handleFinalBookingSubmit(e) {
+    if (e) e.preventDefault();
 
-      const clientName = nameInput ? nameInput.value.trim() : '';
-      const rawPhone = phoneInput ? phoneInput.value.trim() : '';
-      const clientEmail = emailInput ? emailInput.value.trim() : '';
-      const clientNotes = notesInput ? notesInput.value.trim() : '';
+    const nameInput = document.getElementById('booking-client-name');
+    const phoneInput = document.getElementById('booking-client-phone');
+    const emailInput = document.getElementById('booking-client-email');
+    const notesInput = document.getElementById('booking-client-notes');
 
-      if (!clientName || clientName.length < 2) {
-        showToast('⚠️ გთხოვთ მიუთითოთ თქვენი სახელი და გვარი');
-        nameInput?.focus();
-        return;
-      }
+    const clientName = nameInput ? nameInput.value.trim() : '';
+    const rawPhone = phoneInput ? phoneInput.value.trim() : '';
+    const clientEmail = emailInput ? emailInput.value.trim() : '';
+    const clientNotes = notesInput ? notesInput.value.trim() : '';
 
-      let cleanPhone = rawPhone.replace(/\s+/g, '').replace(/-/g, '').replace(/\+/g, '');
-      if (cleanPhone.startsWith('995')) {
-        cleanPhone = cleanPhone.substring(3);
-      }
+    if (!clientName || clientName.length < 2) {
+      showToast('⚠️ გთხოვთ მიუთითოთ თქვენი სახელი და გვარი');
+      nameInput?.focus();
+      return;
+    }
 
-      if (!/^5\d{8}$/.test(cleanPhone)) {
-        showToast('⚠️ ტელეფონის ნომერი უნდა იწყებოდეს 5-იანით და შედგებოდეს 9 ციფრისგან');
-        phoneInput?.focus();
-        return;
-      }
+    let cleanPhone = rawPhone.replace(/\s+/g, '').replace(/-/g, '').replace(/\+/g, '');
+    if (cleanPhone.startsWith('995')) {
+      cleanPhone = cleanPhone.substring(3);
+    }
 
-      const formattedPhone = '+995 ' + cleanPhone;
-      const cat = catInput ? catInput.value : 'therapy';
-      const service = serviceSelect ? serviceSelect.value : '';
-      const date = document.getElementById('modal-booking-date-input')?.value || '';
-      const time = document.getElementById('modal-booking-time-input')?.value || '';
-      const formatSelect = document.getElementById('booking-format-select');
-      const format = formatSelect ? formatSelect.options[formatSelect.selectedIndex].text : 'პირისპირ';
-      const curBank = (BANKS[activeBankKey] || BANKS.bog).name;
+    if (!/^5\d{8}$/.test(cleanPhone)) {
+      showToast('⚠️ ტელეფონის ნომერი უნდა იწყებოდეს 5-იანით და შედგებოდეს 9 ციფრისგან');
+      phoneInput?.focus();
+      return;
+    }
 
-      if (submitBtn) submitBtn.disabled = true;
-      if (submitBtnText) submitBtnText.textContent = 'იგზავნება...';
+    const formattedPhone = '+995 ' + cleanPhone;
+    const cat = catInput ? catInput.value : 'therapy';
+    const service = serviceSelect ? serviceSelect.value : '';
+    const date = document.getElementById('modal-booking-date-input')?.value || '';
+    const time = document.getElementById('modal-booking-time-input')?.value || '';
+    const formatSelect = document.getElementById('booking-format-select');
+    const format = formatSelect ? formatSelect.options[formatSelect.selectedIndex].text : 'პირისპირ';
+    const curBank = (BANKS[activeBankKey] || BANKS.bog).name;
 
-      saveBookingDataLocally();
+    if (submitBtn) submitBtn.disabled = true;
+    if (submitBtnText) submitBtnText.textContent = 'იგზავნება...';
 
-      // Send to n8n webhook
-      try {
-        fetch('https://meticulous-oyster.pikapod.net/webhook/registration', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            fullName: clientName,
-            phone: formattedPhone,
-            email: clientEmail,
-            notes: clientNotes,
-            course: service,
-            service: service,
-            category: cat,
-            format: format,
-            date: date,
-            time: time,
-            bank: curBank,
-            type: 'booking',
-            timestamp: new Date().toISOString()
-          })
-        }).catch(() => {});
-      } catch (e) {}
+    saveBookingDataLocally();
 
-      showToast(`✨ გმადლობთ, ${clientName}! ვიზიტი წარმატებით დაჯავშნილია. დაგიკავშირდებით ნომერზე: ${formattedPhone}`);
-      
-      if (submitBtnText) submitBtnText.textContent = '✓ ვიზიტი დაჯავშნილია';
+    // Send to n8n webhook
+    try {
+      await fetch('https://meticulous-oyster.pikapod.net/webhook/registration', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fullName: clientName,
+          phone: formattedPhone,
+          email: clientEmail,
+          notes: clientNotes,
+          course: service,
+          service: service,
+          category: cat,
+          format: format,
+          date: date,
+          time: time,
+          bank: curBank,
+          type: 'booking',
+          timestamp: new Date().toISOString()
+        })
+      });
+    } catch (e) {
+      console.error('Webhook dispatch error:', e);
+    }
+
+    showToast(`✨ გმადლობთ, ${clientName}! ვიზიტი წარმატებით დაჯავშნილია. დაგიკავშირდებით ნომერზე: ${formattedPhone}`);
+    
+    if (submitBtnText) submitBtnText.textContent = '✓ ვიზიტი დაჯავშნილია';
+    if (submitBtn) {
+      submitBtn.className = 'flex-1 bg-emerald-600 text-white py-4 px-6 rounded-2xl font-bold text-sm uppercase tracking-wider transition-all shadow-lg flex items-center justify-center gap-2 cursor-default';
+    }
+
+    setTimeout(() => {
+      closeModal();
       if (submitBtn) {
-        submitBtn.className = 'flex-1 bg-emerald-600 text-white py-3.5 px-6 rounded-xl font-bold text-sm uppercase tracking-wider transition-all shadow-lg flex items-center justify-center gap-2 cursor-default';
+        submitBtn.disabled = false;
+        submitBtn.className = 'flex-1 bg-[#1C3D63] hover:bg-[#254F7F] active:scale-[0.99] text-white py-4 px-6 rounded-2xl font-bold text-sm uppercase tracking-wider transition-all duration-300 shadow-md flex items-center justify-center gap-2.5 cursor-pointer';
       }
+      if (submitBtnText) submitBtnText.textContent = 'ვიზიტის დაჯავშნა';
+    }, 3000);
+  }
 
-      setTimeout(() => {
-        closeModal();
-        if (submitBtn) {
-          submitBtn.disabled = false;
-          submitBtn.className = 'flex-1 bg-[#1C3D63] hover:bg-[#254F7F] active:scale-[0.99] text-white py-3.5 px-6 rounded-xl font-bold text-sm uppercase tracking-wider transition-all duration-300 shadow-md flex items-center justify-center gap-2.5 cursor-pointer';
+  if (step2Form) {
+    step2Form.addEventListener('submit', handleFinalBookingSubmit);
+  }
+  if (submitBtn) {
+    submitBtn.addEventListener('click', (e) => {
+      if (step2Form) {
+        if (!step2Form.checkValidity()) {
+          step2Form.reportValidity();
         }
-        if (submitBtnText) submitBtnText.textContent = 'ვიზიტის დაჯავშნა';
-      }, 3000);
+      }
     });
   }
 
@@ -1386,7 +1440,7 @@ function initBookingModal() {
       saveBookingDataLocally();
 
       try {
-        fetch('https://meticulous-oyster.pikapod.net/webhook/registration', {
+        await fetch('https://meticulous-oyster.pikapod.net/webhook/registration', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -1405,8 +1459,10 @@ function initBookingModal() {
             type: 'booking',
             timestamp: new Date().toISOString()
           })
-        }).catch(() => {});
-      } catch (e) {}
+        });
+      } catch (e) {
+        console.error('Confirm pay webhook error:', e);
+      }
 
       showToast(`✨ გმადლობთ, ${clientName}! გადახდის ინფორმაცია და ჯავშანი მიღებულია.`);
       if (confirmPayText) confirmPayText.textContent = '✓ გადახდა დადასტურებულია';
