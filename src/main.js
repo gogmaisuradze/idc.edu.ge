@@ -475,7 +475,7 @@ function initBookingModal() {
       <div class="bg-[#FFFFFF] rounded-[1.5rem] sm:rounded-[2rem] shadow-[0px_25px_60px_rgba(28,61,99,0.25)] border border-[#D8C4B6] max-w-4xl w-full relative transition-all duration-500 transform scale-95 max-h-[92vh] flex flex-col text-left overflow-hidden" id="booking-modal-card">
         
         <!-- Pinned Close Button: Fixed to top-right of modal card at all times, NEVER scrolls away -->
-        <button id="close-modal-btn" class="absolute top-5 right-5 sm:top-7 sm:right-7 w-10 h-10 rounded-full bg-white/95 backdrop-blur-md border border-[#D8C4B6] text-[#1C3D63] hover:bg-[#1C3D63] hover:text-white hover:border-[#1C3D63] flex items-center justify-center shadow-[0_4px_12px_rgba(0,0,0,0.12)] transition-all duration-200 focus:outline-none z-50 cursor-pointer hover:scale-105 active:scale-95" aria-label="ფანჯრის დახურვა">
+        <button id="close-modal-btn" class="absolute top-7 right-4 sm:top-7 sm:right-7 w-10 h-10 rounded-full bg-white/95 backdrop-blur-md border border-[#D8C4B6] text-[#1C3D63] hover:bg-[#1C3D63] hover:text-white hover:border-[#1C3D63] flex items-center justify-center shadow-[0_4px_12px_rgba(0,0,0,0.12)] transition-all duration-200 focus:outline-none z-50 cursor-pointer hover:scale-105 active:scale-95" aria-label="ფანჯრის დახურვა">
           <span class="material-symbols-outlined text-2xl">close</span>
         </button>
 
@@ -483,7 +483,7 @@ function initBookingModal() {
         <div class="overflow-y-auto p-5 sm:p-7 md:p-8 flex-grow">
           <!-- STEP 1: Interactive Calendar & Booking Form (Metaphora Style) -->
           <div id="booking-step-form">
-          <div class="mb-5 text-left">
+          <div class="mb-5 text-left pr-12 sm:pr-0">
             <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#E0AC6B]/15 border border-[#E0AC6B]/40 text-[#1C3D63] text-xs font-bold uppercase tracking-wider mb-2">
               <span class="material-symbols-outlined text-sm text-[#E0AC6B]">calendar_month</span>
               <span>✨ ონლაინ დაჯავშნა</span>
@@ -612,7 +612,7 @@ function initBookingModal() {
 
         <!-- STEP 2: Registration & Combined Bank Selection / Booking -->
         <div id="booking-step-payment" class="hidden space-y-4">
-          <div class="flex items-center justify-between">
+          <div class="flex items-center justify-between pr-12 sm:pr-0">
             <button type="button" id="modal-btn-payment-back" class="inline-flex items-center gap-1.5 text-xs text-[#1C3D63] font-bold hover:underline cursor-pointer border-none bg-transparent p-0">
               <span class="material-symbols-outlined text-sm">arrow_back</span>
               <span>← კალენდარზე დაბრუნება</span>
