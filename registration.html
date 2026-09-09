@@ -1304,6 +1304,9 @@
             }).catch(() => {});
           } catch (e) {}
 
+          // Meta Pixel — ლიდი (სენსიტიური დეტალების გარეშე)
+          if (window.fbq) window.fbq("track", "Lead");
+
           showStatus(
             `✨ <strong>გმადლობთ, ${fullName}!</strong><br/>თქვენი რეგისტრაცია წარმატებით გაიგზავნა! ადმინისტრაცია მალე დაგიკავშირდებათ მითითებულ ნომერზე (${formattedPhone}).<br/><span class="text-xs text-[#3B5E63] mt-1 inline-block">საფასურის გადასახდელად შეგიძლიათ ისარგებლოთ ქვემოთ მოცემული „გადახდა“ განყოფილებით.</span>`,
             false

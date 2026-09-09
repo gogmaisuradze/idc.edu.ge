@@ -2,6 +2,28 @@
 import { initTeamCircularSlider } from './team-circular-mount';
 import { initNewsCoverFlow } from './news-coverflow-mount';
 
+// ─── Meta (Facebook) Pixel — ყველა გვერდზე ავტომატური PageView ───
+// სენსიტიური სფეროა (ფსიქოთერაპია): მოვლენებს არასდროს გადავცემთ პირად/სამედიცინო
+// პარამეტრებს (სახელი, კურსი, ჯანმრთელობა). მხოლოდ ზოგადი მოვლენები.
+(function () {
+  if (window.fbq) return;
+  const n = (window.fbq = function () {
+    n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments);
+  });
+  if (!window._fbq) window._fbq = n;
+  n.push = n;
+  n.loaded = true;
+  n.version = '2.0';
+  n.queue = [];
+  const t = document.createElement('script');
+  t.async = true;
+  t.src = 'https://connect.facebook.net/en_US/fbevents.js';
+  const s = document.getElementsByTagName('script')[0];
+  s.parentNode.insertBefore(t, s);
+})();
+window.fbq('init', '1071093078751644');
+window.fbq('track', 'PageView');
+
 const initAll = () => {
   initMobileMenu();
   initBookingModal();
@@ -1479,6 +1501,9 @@ function initFormValidation() {
         timestamp: new Date().toISOString(),
         sourceUrl: window.location.href
       };
+
+      // Meta Pixel — ლიდი (სენსიტიური დეტალების გარეშე)
+      if (window.fbq) window.fbq('track', 'Lead');
 
       // Send to n8n webhook if configured
       if (n8nWebhookUrl && n8nWebhookUrl.trim() !== '') {
