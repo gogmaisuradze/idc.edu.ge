@@ -612,14 +612,11 @@ function initBookingModal() {
 
         <!-- STEP 2: Registration & Combined Bank Selection / Booking -->
         <div id="booking-step-payment" class="hidden space-y-4">
-          <div class="flex items-center justify-between pr-12 sm:pr-0">
+          <div class="flex items-center">
             <button type="button" id="modal-btn-payment-back" class="inline-flex items-center gap-1.5 text-xs text-[#1C3D63] font-bold hover:underline cursor-pointer border-none bg-transparent p-0">
               <span class="material-symbols-outlined text-sm">arrow_back</span>
               <span>← კალენდარზე დაბრუნება</span>
             </button>
-            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#E0AC6B]/15 border border-[#E0AC6B]/40 text-[#1C3D63] text-[10px] font-bold uppercase tracking-wider">
-              ნაბიჯი 2/2
-            </span>
           </div>
 
           <div>
