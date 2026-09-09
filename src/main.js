@@ -661,6 +661,13 @@ function initBookingModal() {
                 </div>
 
                 <div>
+                  <label for="booking-client-dob" class="block text-[11px] font-bold text-[#1C3D63] uppercase tracking-wider mb-1">
+                    დაბადების თარიღი <span class="text-red-500">*</span>
+                  </label>
+                  <input type="date" id="booking-client-dob" name="birth_date" required class="w-full bg-[#FAF7F2] border border-[#D8C4B6] focus:border-[#1C3D63] focus:bg-white focus:outline-none rounded-xl px-3 py-2.5 text-xs text-[#222222] font-medium transition-all shadow-inner cursor-pointer">
+                </div>
+
+                <div>
                   <label for="booking-client-phone" class="block text-[11px] font-bold text-[#1C3D63] uppercase tracking-wider mb-1">
                     ტელეფონის ნომერი <span class="text-red-500">*</span>
                   </label>
@@ -671,14 +678,14 @@ function initBookingModal() {
                   <label for="booking-client-email" class="block text-[11px] font-bold text-[#1C3D63] uppercase tracking-wider mb-1">
                     ელ. ფოსტა (სურვილისამებრ)
                   </label>
-                  <input type="email" id="booking-client-email" name="client_email" placeholder="example@mail.com" class="w-full bg-[#FAF7F2] border border-[#D8C4B6] focus:border-[#1C3D63] focus:bg-white focus:outline-none rounded-xl px-3 py-2 text-xs text-[#222222] font-medium transition-all shadow-inner">
+                  <input type="email" id="booking-client-email" name="client_email" placeholder="example@mail.com" class="w-full bg-[#FAF7F2] border border-[#D8C4B6] focus:border-[#1C3D63] focus:bg-white focus:outline-none rounded-xl px-3 py-2.5 text-xs text-[#222222] font-medium transition-all shadow-inner">
                 </div>
 
-                <div>
+                <div class="sm:col-span-2">
                   <label for="booking-client-notes" class="block text-[11px] font-bold text-[#1C3D63] uppercase tracking-wider mb-1">
                     შენიშვნა / კომენტარი (სურვილისამებრ)
                   </label>
-                  <input type="text" id="booking-client-notes" name="client_notes" placeholder="დამატებითი დეტალები ან შეკითხვა..." class="w-full bg-[#FAF7F2] border border-[#D8C4B6] focus:border-[#1C3D63] focus:bg-white focus:outline-none rounded-xl px-3 py-2 text-xs text-[#222222] font-medium transition-all shadow-inner">
+                  <input type="text" id="booking-client-notes" name="client_notes" placeholder="დამატებითი დეტალები ან შეკითხვა..." class="w-full bg-[#FAF7F2] border border-[#D8C4B6] focus:border-[#1C3D63] focus:bg-white focus:outline-none rounded-xl px-3 py-2.5 text-xs text-[#222222] font-medium transition-all shadow-inner">
                 </div>
               </div>
             </div>
@@ -1108,6 +1115,7 @@ function initBookingModal() {
   function autoFillBookingClientData() {
     try {
       const nameInput = document.getElementById('booking-client-name');
+      const dobInput = document.getElementById('booking-client-dob');
       const phoneInput = document.getElementById('booking-client-phone');
       const emailInput = document.getElementById('booking-client-email');
 
@@ -1117,10 +1125,11 @@ function initBookingModal() {
       if (!storedFullName && (storedFirst || storedLast)) {
         storedFullName = `${storedFirst} ${storedLast}`.trim();
       }
+      let storedDob = localStorage.getItem('idc_user_dob') || localStorage.getItem('user_dob') || localStorage.getItem('birth_date') || '';
       let storedPhone = localStorage.getItem('idc_user_phone') || localStorage.getItem('user_phone') || '';
       let storedEmail = localStorage.getItem('idc_user_email') || localStorage.getItem('user_email') || '';
 
-      if (!storedFullName || !storedPhone) {
+      if (!storedFullName || !storedPhone || !storedDob) {
         const storedProfiles = localStorage.getItem('saved_profiles');
         if (storedProfiles) {
           const list = JSON.parse(storedProfiles);
@@ -1128,11 +1137,13 @@ function initBookingModal() {
             const p = list[0];
             if (!storedFullName && p.name) storedFullName = `${p.name} ${p.surname || ''}`.trim();
             if (!storedPhone && p.phone) storedPhone = p.phone;
+            if (!storedDob && p.dob) storedDob = p.dob;
           }
         }
       }
 
       if (nameInput && !nameInput.value && storedFullName) nameInput.value = storedFullName;
+      if (dobInput && !dobInput.value && storedDob) dobInput.value = storedDob;
       if (phoneInput && !phoneInput.value && storedPhone) phoneInput.value = storedPhone;
       if (emailInput && !emailInput.value && storedEmail) emailInput.value = storedEmail;
     } catch (e) {}
@@ -1141,10 +1152,12 @@ function initBookingModal() {
   function saveBookingDataLocally() {
     try {
       const nameInput = document.getElementById('booking-client-name');
+      const dobInput = document.getElementById('booking-client-dob');
       const phoneInput = document.getElementById('booking-client-phone');
       const emailInput = document.getElementById('booking-client-email');
 
       const fullName = nameInput ? nameInput.value.trim() : '';
+      const dob = dobInput ? dobInput.value.trim() : '';
       const phone = phoneInput ? phoneInput.value.trim() : '';
       const email = emailInput ? emailInput.value.trim() : '';
 
@@ -1160,6 +1173,11 @@ function initBookingModal() {
           localStorage.setItem('idc_user_firstname', fullName);
           localStorage.setItem('user_first_name', fullName);
         }
+      }
+      if (dob) {
+        localStorage.setItem('idc_user_dob', dob);
+        localStorage.setItem('user_dob', dob);
+        localStorage.setItem('birth_date', dob);
       }
       if (phone) {
         localStorage.setItem('idc_user_phone', phone);
@@ -1198,6 +1216,7 @@ function initBookingModal() {
   }
 
   const clientNameInput = document.getElementById('booking-client-name');
+  const clientDobInput = document.getElementById('booking-client-dob');
   const clientPhoneInput = document.getElementById('booking-client-phone');
   const clientEmailInput = document.getElementById('booking-client-email');
   const customAmountInput = document.getElementById('modal-payment-custom-amount');
@@ -1207,6 +1226,10 @@ function initBookingModal() {
       saveBookingDataLocally();
       updateModalPurposeText();
     });
+  }
+  if (clientDobInput) {
+    clientDobInput.addEventListener('input', saveBookingDataLocally);
+    clientDobInput.addEventListener('change', saveBookingDataLocally);
   }
   if (clientPhoneInput) {
     clientPhoneInput.addEventListener('input', () => {
@@ -1316,11 +1339,13 @@ function initBookingModal() {
     if (e) e.preventDefault();
 
     const nameInput = document.getElementById('booking-client-name');
+    const dobInput = document.getElementById('booking-client-dob');
     const phoneInput = document.getElementById('booking-client-phone');
     const emailInput = document.getElementById('booking-client-email');
     const notesInput = document.getElementById('booking-client-notes');
 
     const clientName = nameInput ? nameInput.value.trim() : '';
+    const birthDate = dobInput ? dobInput.value.trim() : '';
     const rawPhone = phoneInput ? phoneInput.value.trim() : '';
     const clientEmail = emailInput ? emailInput.value.trim() : '';
     const clientNotes = notesInput ? notesInput.value.trim() : '';
@@ -1328,6 +1353,12 @@ function initBookingModal() {
     if (!clientName || clientName.length < 2) {
       showToast('⚠️ გთხოვთ მიუთითოთ თქვენი სახელი და გვარი');
       nameInput?.focus();
+      return;
+    }
+
+    if (!birthDate) {
+      showToast('⚠️ გთხოვთ მიუთითოთ დაბადების თარიღი');
+      dobInput?.focus();
       return;
     }
 
@@ -1365,6 +1396,8 @@ function initBookingModal() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           fullName: clientName,
+          birthDate: birthDate,
+          dob: birthDate,
           phone: formattedPhone,
           email: clientEmail,
           notes: clientNotes ? (customAmount ? `${clientNotes} [საფასური: ${customAmount}]` : clientNotes) : (customAmount ? `[საფასური: ${customAmount}]` : ''),
@@ -1420,12 +1453,14 @@ function initBookingModal() {
   if (confirmPayBtn) {
     confirmPayBtn.addEventListener('click', async () => {
       const nameInput = document.getElementById('booking-client-name');
+      const dobInput = document.getElementById('booking-client-dob');
       const phoneInput = document.getElementById('booking-client-phone');
       const emailInput = document.getElementById('booking-client-email');
       const notesInput = document.getElementById('booking-client-notes');
       const customAmount = document.getElementById('modal-payment-custom-amount')?.value.trim() || '';
 
       const clientName = nameInput ? nameInput.value.trim() : '';
+      const birthDate = dobInput ? dobInput.value.trim() : '';
       const rawPhone = phoneInput ? phoneInput.value.trim() : '';
       const clientEmail = emailInput ? emailInput.value.trim() : '';
       const clientNotes = notesInput ? notesInput.value.trim() : '';
@@ -1433,6 +1468,12 @@ function initBookingModal() {
       if (!clientName || clientName.length < 2) {
         showToast('⚠️ გთხოვთ მიუთითოთ თქვენი სახელი და გვარი');
         nameInput?.focus();
+        return;
+      }
+
+      if (!birthDate) {
+        showToast('⚠️ გთხოვთ მიუთითოთ დაბადების თარიღი');
+        dobInput?.focus();
         return;
       }
 
@@ -1467,6 +1508,8 @@ function initBookingModal() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             fullName: clientName,
+            birthDate: birthDate,
+            dob: birthDate,
             phone: formattedPhone,
             email: clientEmail,
             notes: clientNotes ? `${clientNotes} [გადახდა დადასტურებულია კლიენტის მიერ${customAmount ? ' · თანხა: ' + customAmount : ''}]` : `[გადახდა დადასტურებულია კლიენტის მიერ${customAmount ? ' · თანხა: ' + customAmount : ''}]`,
@@ -1506,11 +1549,13 @@ function initBookingModal() {
     if (stepPayment) stepPayment.classList.remove('hidden');
 
     const nameInput = document.getElementById('booking-client-name');
+    const dobInput = document.getElementById('booking-client-dob');
     const phoneInput = document.getElementById('booking-client-phone');
     const emailInput = document.getElementById('booking-client-email');
     const notesInput = document.getElementById('booking-client-notes');
 
     if (nameInput && bookingData.name) nameInput.value = bookingData.name;
+    if (dobInput && bookingData.birthDate) dobInput.value = bookingData.birthDate;
     if (phoneInput && bookingData.phone && bookingData.phone !== 'N/A') phoneInput.value = bookingData.phone;
     if (emailInput && bookingData.email && bookingData.email !== 'N/A') emailInput.value = bookingData.email;
     if (notesInput && bookingData.message) notesInput.value = bookingData.message;
