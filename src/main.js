@@ -2,10 +2,12 @@
 import { initTeamCircularSlider } from './team-circular-mount';
 import { initNewsCoverFlow } from './news-coverflow-mount';
 
-// ─── Meta (Facebook) Pixel — ყველა გვერდზე ავტომატური PageView ───
+// ─── Meta (Facebook) Pixel + Cookie თანხმობა ───
 // სენსიტიური სფეროა (ფსიქოთერაპია): მოვლენებს არასდროს გადავცემთ პირად/სამედიცინო
-// პარამეტრებს (სახელი, კურსი, ჯანმრთელობა). მხოლოდ ზოგადი მოვლენები.
-(function () {
+// პარამეტრებს. Pixel ირთვება მხოლოდ მომხმარებლის თანხმობის შემდეგ.
+const META_PIXEL_ID = '1071093078751644';
+
+function loadMetaPixel() {
   if (window.fbq) return;
   const n = (window.fbq = function () {
     n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments);
@@ -20,11 +22,49 @@ import { initNewsCoverFlow } from './news-coverflow-mount';
   t.src = 'https://connect.facebook.net/en_US/fbevents.js';
   const s = document.getElementsByTagName('script')[0];
   s.parentNode.insertBefore(t, s);
-})();
-window.fbq('init', '1071093078751644');
-window.fbq('track', 'PageView');
+  window.fbq('init', META_PIXEL_ID);
+  window.fbq('track', 'PageView');
+}
+
+function idcGetConsent() {
+  try { return localStorage.getItem('idc_cookie_consent'); } catch (e) { return null; }
+}
+function idcSetConsent(v) {
+  try { localStorage.setItem('idc_cookie_consent', v); } catch (e) {}
+}
+
+function initCookieConsent() {
+  const consent = idcGetConsent();
+  if (consent === 'granted') { loadMetaPixel(); return; }
+  if (consent === 'denied') return;
+  if (document.getElementById('idc-cookie-bar')) return;
+
+  const bar = document.createElement('div');
+  bar.id = 'idc-cookie-bar';
+  bar.style.cssText = 'position:fixed;left:16px;right:16px;bottom:16px;z-index:99999;max-width:760px;margin:0 auto;background:#1e2022;color:#e7e7ea;border:1px solid rgba(255,255,255,0.12);border-radius:16px;padding:16px 18px;box-shadow:0 20px 50px rgba(0,0,0,0.45);display:flex;flex-wrap:wrap;align-items:center;gap:12px;font-size:13.5px;line-height:1.5;';
+
+  const text = document.createElement('span');
+  text.style.cssText = 'flex:1;min-width:220px;';
+  text.textContent = '🍪 ჩვენ ვიყენებთ ქუქებს საიტის გასაუმჯობესებლად და რეკლამის ეფექტიანობის გასაზომად. დათანხმებით თქვენ ეთანხმებით ამ ქუქების გამოყენებას.';
+
+  const accept = document.createElement('button');
+  accept.textContent = 'ვეთანხმები';
+  accept.style.cssText = 'background:#f1bf62;color:#121416;border:none;border-radius:10px;padding:9px 18px;font-weight:700;font-size:13.5px;cursor:pointer;';
+  accept.onclick = function () { idcSetConsent('granted'); loadMetaPixel(); bar.remove(); };
+
+  const decline = document.createElement('button');
+  decline.textContent = 'უარი';
+  decline.style.cssText = 'background:transparent;color:#c6c6ce;border:1px solid rgba(255,255,255,0.2);border-radius:10px;padding:9px 16px;font-weight:600;font-size:13.5px;cursor:pointer;';
+  decline.onclick = function () { idcSetConsent('denied'); bar.remove(); };
+
+  bar.appendChild(text);
+  bar.appendChild(accept);
+  bar.appendChild(decline);
+  document.body.appendChild(bar);
+}
 
 const initAll = () => {
+  initCookieConsent();
   initMobileMenu();
   initBookingModal();
   initBlogFilters();
