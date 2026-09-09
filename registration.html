@@ -677,6 +677,14 @@
                   </div>
                 </div>
 
+                <!-- ხელით შესავსები საფასურის/თანხის ველი -->
+                <div>
+                  <label for="reg-payment-custom-amount" class="text-[10px] text-[#8E8276] block uppercase tracking-wider font-semibold mb-1">საფასური / გადასახდელი თანხა</label>
+                  <div class="relative">
+                    <input type="text" id="reg-payment-custom-amount" placeholder="მაგ. 80 ₾ (ან სასურველი თანხა)" class="w-full bg-white border border-[#D8C4B6] focus:border-[#1C3D63] focus:outline-none rounded-xl px-3 py-2 text-xs font-bold text-[#1C3D63] placeholder:font-normal placeholder:text-[#8E8276]/70 transition-all shadow-inner outline-none" />
+                  </div>
+                </div>
+
                 <div>
                   <span class="text-[10px] text-[#8E8276] block uppercase tracking-wider font-semibold">დანიშნულება</span>
                   <span id="reg-payment-purpose" class="font-medium text-[#222222] text-[11px] truncate block bg-white p-2 rounded-lg border border-[#D8C4B6]/50">რეგისტრაციის საფასური</span>
@@ -1023,10 +1031,13 @@
       function updatePurposeText() {
         const clientName = (nameInput && nameInput.value.trim()) ? nameInput.value.trim() : "";
         const courseName = (courseInput && courseInput.value.trim()) ? courseInput.value.trim() : "რეგისტრაცია";
+        const customAmountInput = document.getElementById("reg-payment-custom-amount");
+        const customAmount = customAmountInput ? customAmountInput.value.trim() : "";
+
         if (regPurposeEl) {
           regPurposeEl.textContent = clientName 
-            ? `რეგისტრაციის საფასური - ${clientName} (${courseName})` 
-            : `რეგისტრაციის საფასური - ${courseName}`;
+            ? `რეგისტრაციის საფასური - ${clientName} (${courseName}${customAmount ? ' · ' + customAmount : ''})` 
+            : `რეგისტრაციის საფასური - ${courseName}${customAmount ? ' (' + customAmount + ')' : ''}`;
         }
         updateQrCode();
       }
@@ -1048,6 +1059,11 @@
         });
       }
       if (courseInput) courseInput.addEventListener("input", updatePurposeText);
+
+      const regCustomAmountInput = document.getElementById("reg-payment-custom-amount");
+      if (regCustomAmountInput) {
+        regCustomAmountInput.addEventListener("input", updatePurposeText);
+      }
 
       // Toggle Payment Section
       if (togglePaymentBtn && paymentSection) {

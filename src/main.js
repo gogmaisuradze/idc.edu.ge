@@ -746,6 +746,14 @@ function initBookingModal() {
                     </div>
                   </div>
 
+                  <!-- ხელით შესავსები საფასურის/თანხის ველი -->
+                  <div>
+                    <label for="modal-payment-custom-amount" class="text-[10px] text-[#8E8276] block uppercase tracking-wider font-semibold mb-1">საფასური / გადასახდელი თანხა</label>
+                    <div class="relative">
+                      <input type="text" id="modal-payment-custom-amount" placeholder="მაგ. 80 ₾ (ან სასურველი თანხა)" class="w-full bg-white border border-[#D8C4B6] focus:border-[#1C3D63] focus:outline-none rounded-xl px-3 py-2 text-xs font-bold text-[#1C3D63] placeholder:font-normal placeholder:text-[#8E8276]/70 transition-all shadow-inner" />
+                    </div>
+                  </div>
+
                   <div>
                     <span class="text-[10px] text-[#8E8276] block uppercase tracking-wider font-semibold">დანიშნულება</span>
                     <span id="modal-payment-purpose" class="font-medium text-[#222222] text-[11px] truncate block bg-white p-2 rounded-lg border border-[#D8C4B6]/50">ვიზიტის საფასური</span>
@@ -984,9 +992,10 @@ function initBookingModal() {
     if (!qrImg) return;
     const clientName = document.getElementById('booking-client-name')?.value.trim() || '';
     const clientPhone = document.getElementById('booking-client-phone')?.value.trim() || '';
+    const customAmount = document.getElementById('modal-payment-custom-amount')?.value.trim() || '';
     const service = serviceSelect ? serviceSelect.value : 'სერვისი';
 
-    const mobileTargetUrl = `${window.location.origin}/registration.html?bank=${activeBankKey}&pay=true&name=${encodeURIComponent(clientName)}&course=${encodeURIComponent(service)}&phone=${encodeURIComponent(clientPhone)}`;
+    const mobileTargetUrl = `${window.location.origin}/registration.html?bank=${activeBankKey}&pay=true&name=${encodeURIComponent(clientName)}&course=${encodeURIComponent(service)}&phone=${encodeURIComponent(clientPhone)}${customAmount ? '&price=' + encodeURIComponent(customAmount) : ''}`;
     const encoded = encodeURIComponent(mobileTargetUrl);
 
     const qrProviders = [
@@ -1080,15 +1089,17 @@ function initBookingModal() {
 
   function updateModalPurposeText() {
     const nameInput = document.getElementById('booking-client-name');
+    const customAmountInput = document.getElementById('modal-payment-custom-amount');
     const purposeEl = document.getElementById('modal-payment-purpose');
     const clientName = nameInput ? nameInput.value.trim() : '';
+    const customAmount = customAmountInput ? customAmountInput.value.trim() : '';
     const service = serviceSelect ? serviceSelect.value : 'პირველადი კონსულტაცია';
 
     if (purposeEl) {
       if (clientName) {
-        purposeEl.textContent = `ვიზიტის საფასური - ${clientName} (${service})`;
+        purposeEl.textContent = `ვიზიტის საფასური - ${clientName} (${service}${customAmount ? ' · ' + customAmount : ''})`;
       } else {
-        purposeEl.textContent = `ვიზიტის საფასური - ${service}`;
+        purposeEl.textContent = `ვიზიტის საფასური - ${service}${customAmount ? ' (' + customAmount + ')' : ''}`;
       }
     }
     updateModalQrCode();
@@ -1189,6 +1200,8 @@ function initBookingModal() {
   const clientNameInput = document.getElementById('booking-client-name');
   const clientPhoneInput = document.getElementById('booking-client-phone');
   const clientEmailInput = document.getElementById('booking-client-email');
+  const customAmountInput = document.getElementById('modal-payment-custom-amount');
+
   if (clientNameInput) {
     clientNameInput.addEventListener('input', () => {
       saveBookingDataLocally();
@@ -1203,6 +1216,11 @@ function initBookingModal() {
   }
   if (clientEmailInput) {
     clientEmailInput.addEventListener('input', saveBookingDataLocally);
+  }
+  if (customAmountInput) {
+    customAmountInput.addEventListener('input', () => {
+      updateModalPurposeText();
+    });
   }
 
   // Form submission -> Step 2
@@ -1333,6 +1351,8 @@ function initBookingModal() {
     const format = formatSelect ? formatSelect.options[formatSelect.selectedIndex].text : 'პირისპირ';
     const curBank = (BANKS[activeBankKey] || BANKS.bog).name;
 
+    const customAmount = document.getElementById('modal-payment-custom-amount')?.value.trim() || '';
+
     if (submitBtn) submitBtn.disabled = true;
     if (submitBtnText) submitBtnText.textContent = 'იგზავნება...';
 
@@ -1347,13 +1367,14 @@ function initBookingModal() {
           fullName: clientName,
           phone: formattedPhone,
           email: clientEmail,
-          notes: clientNotes,
+          notes: clientNotes ? (customAmount ? `${clientNotes} [საფასური: ${customAmount}]` : clientNotes) : (customAmount ? `[საფასური: ${customAmount}]` : ''),
           course: service,
           service: service,
           category: cat,
           format: format,
           date: date,
           time: time,
+          price: customAmount,
           bank: curBank,
           type: 'booking',
           timestamp: new Date().toISOString()
@@ -1402,6 +1423,7 @@ function initBookingModal() {
       const phoneInput = document.getElementById('booking-client-phone');
       const emailInput = document.getElementById('booking-client-email');
       const notesInput = document.getElementById('booking-client-notes');
+      const customAmount = document.getElementById('modal-payment-custom-amount')?.value.trim() || '';
 
       const clientName = nameInput ? nameInput.value.trim() : '';
       const rawPhone = phoneInput ? phoneInput.value.trim() : '';
@@ -1447,13 +1469,14 @@ function initBookingModal() {
             fullName: clientName,
             phone: formattedPhone,
             email: clientEmail,
-            notes: clientNotes ? `${clientNotes} [გადახდა დადასტურებულია კლიენტის მიერ]` : '[გადახდა დადასტურებულია კლიენტის მიერ]',
+            notes: clientNotes ? `${clientNotes} [გადახდა დადასტურებულია კლიენტის მიერ${customAmount ? ' · თანხა: ' + customAmount : ''}]` : `[გადახდა დადასტურებულია კლიენტის მიერ${customAmount ? ' · თანხა: ' + customAmount : ''}]`,
             course: service,
             service: service,
             category: cat,
             format: format,
             date: date,
             time: time,
+            price: customAmount,
             bank: curBank,
             paymentStatus: 'paid_confirmed',
             type: 'booking',
