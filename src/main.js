@@ -729,7 +729,7 @@ function initBookingModal() {
                   <div class="flex items-center justify-between pb-2 border-b border-[#D8C4B6]/50">
                     <div>
                       <span class="text-[10px] text-[#8E8276] block uppercase tracking-wider font-semibold">მიმღები</span>
-                      <span class="font-bold text-[#1C3D63] text-sm">ანი მაისურაძე</span>
+                      <span class="font-bold text-[#1C3D63] text-sm" id="modal-recipient-name">შპსპოზიტიური ფსიქოთერაპიის ცენტრი</span>
                     </div>
                     <div class="text-right">
                       <span class="text-[10px] text-[#8E8276] block uppercase tracking-wider font-semibold">ბანკი</span>
@@ -746,7 +746,7 @@ function initBookingModal() {
                       </button>
                     </div>
                     <div class="bg-white p-2.5 rounded-xl border border-[#D8C4B6]/60">
-                      <span id="modal-iban-text" class="font-mono font-bold text-[#1C3D63] text-xs sm:text-[13px] break-all">GE93BG0000000192399800</span>
+                      <span id="modal-iban-text" class="font-mono font-bold text-[#1C3D63] text-xs sm:text-[13px] break-all">GE11BG0000000499351374</span>
                     </div>
                   </div>
 
@@ -974,15 +974,15 @@ function initBookingModal() {
   const BANKS = {
     bog: {
       name: 'საქართველოს ბანკი',
-      recipient: 'ანი მაისურაძე',
-      iban: 'GE93BG0000000192399800',
+      recipient: 'შპსპოზიტიური ფსიქოთერაპიის ცენტრი',
+      iban: 'GE11BG0000000499351374',
       color: '#ff6700',
       webUrl: 'https://ibank.bog.ge/',
       linkText: 'გადასვლა საქართველოს ბანკში'
     },
     tbc: {
       name: 'თიბისი ბანკი',
-      recipient: 'ანი მაისურაძე',
+      recipient: 'შპსპოზიტიური ფსიქოთერაპიის ცენტრი',
       iban: 'GE42TB7845636020100005',
       color: '#00adef',
       webUrl: 'https://tbconline.ge/tbcrd/login?',
@@ -1024,11 +1024,13 @@ function initBookingModal() {
     const btnBog = document.getElementById('modal-btn-bog');
     const btnTbc = document.getElementById('modal-btn-tbc');
     const nameEl = document.getElementById('modal-bank-name');
+    const recipientEl = document.getElementById('modal-recipient-name');
     const ibanEl = document.getElementById('modal-iban-text');
     const appLinkEl = document.getElementById('modal-bank-app-link');
     const linkTextEl = document.getElementById('modal-bank-link-text');
 
     if (nameEl) nameEl.textContent = bank.name;
+    if (recipientEl && bank.recipient) recipientEl.textContent = bank.recipient;
     if (ibanEl) ibanEl.textContent = bank.iban;
     if (linkTextEl) linkTextEl.textContent = bank.linkText;
     if (appLinkEl) {
@@ -1290,7 +1292,7 @@ function initBookingModal() {
   const copyBtnText = document.getElementById('modal-copy-btn-text');
   if (copyIbanBtn) {
     copyIbanBtn.addEventListener('click', () => {
-      const iban = document.getElementById('modal-iban-text')?.textContent.trim() || 'GE93BG0000000192399800';
+      const iban = document.getElementById('modal-iban-text')?.textContent.trim() || 'GE11BG0000000499351374';
       navigator.clipboard.writeText(iban).then(() => {
         if (copyBtnText) copyBtnText.textContent = '✓ დაკოპირდა!';
         showToast('✓ IBAN ანგარიშის ნომერი დაკოპირდა!');
