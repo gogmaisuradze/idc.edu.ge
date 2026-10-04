@@ -585,9 +585,31 @@ function initBookingModal() {
           <!-- STEP 1: Interactive Calendar & Booking Form (Metaphora Style) -->
           <div id="booking-step-form">
           <div class="mb-5 text-left pr-12 sm:pr-0">
-            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#E0AC6B]/15 border border-[#E0AC6B]/40 text-[#1C3D63] text-xs font-bold uppercase tracking-wider mb-2">
-              <span class="material-symbols-outlined text-sm text-[#E0AC6B]">calendar_month</span>
-              <span>✨ ონლაინ დაჯავშნა</span>
+            <div class="flex flex-wrap items-center gap-2 mb-2">
+              <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E0AC6B]/15 border border-[#E0AC6B]/40 text-[#1C3D63] text-xs font-bold uppercase tracking-wider">
+                <span class="material-symbols-outlined text-sm text-[#E0AC6B]">calendar_month</span>
+                <span>✨ ონლაინ დაჯავშნა</span>
+              </div>
+
+              <!-- AI Bot Button with Tooltip -->
+              <div class="relative group inline-block">
+                <a href="https://t.me/IDCPosotherapybot" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-[#1C3D63] to-[#254F7F] text-white text-xs font-bold border border-[#E0AC6B]/60 shadow-xs hover:shadow-md hover:scale-105 active:scale-95 transition-all no-underline cursor-pointer">
+                  <span class="material-symbols-outlined text-sm text-[#E0AC6B] animate-pulse">smart_toy</span>
+                  <span>AI რეგისტრაცია</span>
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+                </a>
+
+                <!-- Tooltip: appears on hover and focus -->
+                <div class="opacity-0 invisible group-hover:opacity-100 group-hover:visible group-focus-within:opacity-100 group-focus-within:visible transition-all duration-300 transform -translate-y-1 group-hover:translate-y-0 absolute left-0 sm:left-1/2 sm:-translate-x-1/2 top-full mt-2 w-72 sm:w-80 p-3 bg-[#1C3D63] text-white rounded-2xl shadow-2xl border border-[#E0AC6B] z-50 pointer-events-none text-left">
+                  <div class="flex items-center gap-1.5 text-[#E0AC6B] font-bold text-xs mb-1">
+                    <span class="material-symbols-outlined text-sm">auto_awesome</span>
+                    <span>AI ასისტენტი</span>
+                  </div>
+                  <p class="text-[11px] text-gray-200 leading-relaxed">
+                    🤖 <strong>AI ბოტი დაგარეგისტრირებთ:</strong> ხელოვნური ინტელექტის ბოტი ავტომატურად გაგიწევთ კონსულტაციას, შეგირჩევთ დროს და დაგარეგისტრირებთ.
+                  </p>
+                </div>
+              </div>
             </div>
             <h2 class="text-2xl sm:text-3xl font-headline italic text-[#1C3D63] font-bold">აირჩიე დღე და დრო</h2>
             <p class="text-xs sm:text-sm text-[#3B5E63]">დაჯავშნე ვიზიტი კალენდარში — დაგიდასტურებთ ტელეფონით.</p>
@@ -701,7 +723,18 @@ function initBookingModal() {
               <div class="pt-3 border-t border-[#D8C4B6]/60 mt-4 flex items-center justify-between text-xs text-[#8E8276]">
                 <span>ან პირდაპირ:</span>
                 <div class="flex items-center gap-2">
-                  <a href="https://t.me/IDCPosotherapybot" target="_blank" class="text-[#1C3D63] hover:text-[#229ED9] font-bold no-underline">Telegram</a>
+                  <div class="relative group inline-block">
+                    <a href="https://t.me/IDCPosotherapybot" target="_blank" class="inline-flex items-center gap-1 text-[#1C3D63] hover:text-[#229ED9] font-bold no-underline bg-[#FAF7F2] px-2 py-0.5 rounded-lg border border-[#D8C4B6]/60 transition-all hover:border-[#229ED9]">
+                      <span class="material-symbols-outlined text-xs text-[#E0AC6B]">smart_toy</span>
+                      <span>AI Bot</span>
+                    </a>
+                    <!-- Tooltip -->
+                    <div class="opacity-0 invisible group-hover:opacity-100 group-hover:visible group-focus-within:opacity-100 group-focus-within:visible transition-all duration-300 transform translate-y-1 group-hover:translate-y-0 absolute right-0 bottom-full mb-2 w-64 p-2.5 bg-[#1C3D63] text-white text-xs rounded-xl shadow-xl border border-[#E0AC6B] z-50 pointer-events-none text-left">
+                      <p class="text-[11px] text-gray-200 leading-snug">
+                        🤖 AI ბოტი ავტომატურად დაგარეგისტრირებთ ტელეგრამში.
+                      </p>
+                    </div>
+                  </div>
                   <span>·</span>
                   <a href="https://wa.me/995598324020" target="_blank" class="text-[#1C3D63] hover:text-[#25D366] font-bold no-underline">WhatsApp</a>
                 </div>
