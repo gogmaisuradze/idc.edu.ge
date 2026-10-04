@@ -591,22 +591,22 @@ function initBookingModal() {
                 <span>✨ ონლაინ დაჯავშნა</span>
               </div>
 
-              <!-- AI Bot Button with Tooltip -->
+              <!-- AI Bot Button with Tooltip (Opens Site AI Chat) -->
               <div class="relative group inline-block">
-                <a href="https://t.me/IDCPosotherapybot" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-[#1C3D63] to-[#254F7F] text-white text-xs font-bold border border-[#E0AC6B]/60 shadow-xs hover:shadow-md hover:scale-105 active:scale-95 transition-all no-underline cursor-pointer">
+                <button type="button" id="modal-ai-register-btn" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-[#1C3D63] to-[#254F7F] text-white text-xs font-bold border border-[#E0AC6B]/60 shadow-xs hover:shadow-md hover:scale-105 active:scale-95 transition-all cursor-pointer">
                   <span class="material-symbols-outlined text-sm text-[#E0AC6B] animate-pulse">smart_toy</span>
                   <span>AI რეგისტრაცია</span>
                   <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
-                </a>
+                </button>
 
                 <!-- Tooltip: appears on hover and focus -->
                 <div class="opacity-0 invisible group-hover:opacity-100 group-hover:visible group-focus-within:opacity-100 group-focus-within:visible transition-all duration-300 transform -translate-y-1 group-hover:translate-y-0 absolute left-0 sm:left-1/2 sm:-translate-x-1/2 top-full mt-2 w-72 sm:w-80 p-3 bg-[#1C3D63] text-white rounded-2xl shadow-2xl border border-[#E0AC6B] z-50 pointer-events-none text-left">
                   <div class="flex items-center gap-1.5 text-[#E0AC6B] font-bold text-xs mb-1">
                     <span class="material-symbols-outlined text-sm">auto_awesome</span>
-                    <span>AI ასისტენტი</span>
+                    <span>საიტის AI ასისტენტი</span>
                   </div>
                   <p class="text-[11px] text-gray-200 leading-relaxed">
-                    🤖 <strong>AI ბოტი დაგარეგისტრირებთ:</strong> ხელოვნური ინტელექტის ბოტი ავტომატურად გაგიწევთ კონსულტაციას, შეგირჩევთ დროს და დაგარეგისტრირებთ.
+                    🤖 <strong>AI ბოტი დაგარეგისტრირებთ:</strong> დააჭირეთ და საიტის ხელოვნური ინტელექტის ასისტენტი გაგიხსნით ჩატის ფანჯარას, გაგიწევთ კონსულტაციას და დაგარეგისტრირებთ.
                   </p>
                 </div>
               </div>
@@ -724,14 +724,14 @@ function initBookingModal() {
                 <span>ან პირდაპირ:</span>
                 <div class="flex items-center gap-2">
                   <div class="relative group inline-block">
-                    <a href="https://t.me/IDCPosotherapybot" target="_blank" class="inline-flex items-center gap-1 text-[#1C3D63] hover:text-[#229ED9] font-bold no-underline bg-[#FAF7F2] px-2 py-0.5 rounded-lg border border-[#D8C4B6]/60 transition-all hover:border-[#229ED9]">
+                    <button type="button" id="modal-contacts-ai-btn" class="inline-flex items-center gap-1 text-[#1C3D63] hover:text-[#1C3D63] font-bold bg-[#FAF7F2] hover:bg-[#E0AC6B]/20 px-2.5 py-0.5 rounded-lg border border-[#D8C4B6]/60 transition-all hover:border-[#E0AC6B] cursor-pointer">
                       <span class="material-symbols-outlined text-xs text-[#E0AC6B]">smart_toy</span>
-                      <span>AI Bot</span>
-                    </a>
+                      <span>AI ასისტენტი</span>
+                    </button>
                     <!-- Tooltip -->
                     <div class="opacity-0 invisible group-hover:opacity-100 group-hover:visible group-focus-within:opacity-100 group-focus-within:visible transition-all duration-300 transform translate-y-1 group-hover:translate-y-0 absolute right-0 bottom-full mb-2 w-64 p-2.5 bg-[#1C3D63] text-white text-xs rounded-xl shadow-xl border border-[#E0AC6B] z-50 pointer-events-none text-left">
                       <p class="text-[11px] text-gray-200 leading-snug">
-                        🤖 AI ბოტი ავტომატურად დაგარეგისტრირებთ ტელეგრამში.
+                        🤖 საიტის AI ბოტი გაგიხსნით ჩატს და დაგარეგისტრირებთ.
                       </p>
                     </div>
                   </div>
@@ -1756,6 +1756,31 @@ function initBookingModal() {
 
   if (closeBtn) closeBtn.addEventListener('click', closeModal);
 
+  const modalAiRegisterBtn = document.getElementById('modal-ai-register-btn');
+  const modalContactsAiBtn = document.getElementById('modal-contacts-ai-btn');
+
+  if (modalAiRegisterBtn) {
+    modalAiRegisterBtn.addEventListener('click', () => {
+      closeModal();
+      if (typeof window.openAIChat === 'function') {
+        window.openAIChat('გამარჯობა! მსურს რეგისტრაციის გავლა');
+      } else {
+        document.getElementById('n8n-chat-trigger')?.click();
+      }
+    });
+  }
+
+  if (modalContactsAiBtn) {
+    modalContactsAiBtn.addEventListener('click', () => {
+      closeModal();
+      if (typeof window.openAIChat === 'function') {
+        window.openAIChat('გამარჯობა! მსურს რეგისტრაციის გავლა');
+      } else {
+        document.getElementById('n8n-chat-trigger')?.click();
+      }
+    });
+  }
+
   function resolveBookingTarget(targetEl) {
     let cat = targetEl?.getAttribute('data-category');
     let service = targetEl?.getAttribute('data-service');
@@ -2766,7 +2791,7 @@ function initN8nChat() {
 
   const chatHTML = `
     ${styleHTML}
-    <div id="n8n-chat-widget" class="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[100] font-sans">
+    <div id="n8n-chat-widget" class="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[300] font-sans">
       <!-- Tooltip showing purpose (Hidden on mobile phones, shown on desktop) -->
       <div id="n8n-chat-tooltip" class="hidden sm:block absolute bottom-20 right-0 mb-3 w-48 bg-[#FFFFFF] border border-[#D8C4B6] text-[#222222] text-[11px] font-semibold px-4 py-2.5 rounded-xl shadow-[0_10px_30px_rgba(28,61,99,0.12)] text-center">
         ინტელექტუალური ასისტენტი 🔮
@@ -2841,24 +2866,24 @@ function initN8nChat() {
 
   let autoOpenTimeout = null;
 
-  const openChat = () => {
-    const isHidden = chatWindow.classList.contains('hidden');
-    if (isHidden) {
-      if (autoOpenTimeout) {
-        clearTimeout(autoOpenTimeout);
-        autoOpenTimeout = null;
-      }
-      chatWindow.classList.remove('hidden');
-      widgetContainer.classList.add('chat-opened');
-      triggerBtn.classList.remove('glow-pulse-active');
-      setTimeout(() => {
-        chatWindow.style.transform = 'scale(1)';
-        chatWindow.style.opacity = '1';
-        chatInput.focus();
-      }, 10);
-      triggerBtn.style.transform = 'scale(0) rotate(180deg)';
-      triggerBtn.style.opacity = '0';
+  const openChat = (initialText = '') => {
+    if (autoOpenTimeout) {
+      clearTimeout(autoOpenTimeout);
+      autoOpenTimeout = null;
     }
+    chatWindow.classList.remove('hidden');
+    widgetContainer.classList.add('chat-opened');
+    triggerBtn.classList.remove('glow-pulse-active');
+    setTimeout(() => {
+      chatWindow.style.transform = 'scale(1)';
+      chatWindow.style.opacity = '1';
+      if (initialText && chatInput) {
+        chatInput.value = initialText;
+      }
+      chatInput.focus();
+    }, 10);
+    triggerBtn.style.transform = 'scale(0) rotate(180deg)';
+    triggerBtn.style.opacity = '0';
   };
 
   // Toggle chat window visibility
