@@ -103,6 +103,107 @@ function showToast(message) {
 }
 window.showToast = showToast;
 
+// Global Registration / Booking Success Popup Modal Helper (პატარა ფანჯარა წარმატებით დასრულებისთვის)
+function showRegistrationSuccessModal({ title, name, phone, course, onPayClick, onClose } = {}) {
+  let modal = document.getElementById('global-success-popup-modal');
+  if (!modal) {
+    const modalHTML = `
+      <div id="global-success-popup-modal" class="fixed inset-0 z-[250] flex items-center justify-center p-4 bg-[#1C3D63]/70 backdrop-blur-md opacity-0 pointer-events-none transition-all duration-300">
+        <div id="global-success-popup-card" class="bg-white rounded-[2rem] p-6 sm:p-8 max-w-md w-full shadow-[0px_25px_60px_rgba(28,61,99,0.35)] border border-[#D8C4B6] relative text-center transform scale-95 transition-all duration-300">
+          
+          <button type="button" id="global-close-success-modal-btn" class="absolute top-5 right-5 w-9 h-9 rounded-full bg-[#FAF7F2] hover:bg-[#1C3D63] hover:text-white border border-[#D8C4B6] flex items-center justify-center text-[#1C3D63] transition-all cursor-pointer shadow-sm focus:outline-none" aria-label="ფანჯრის დახურვა">
+            <span class="material-symbols-outlined text-xl">close</span>
+          </button>
+
+          <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-emerald-50 border-2 border-emerald-200 text-emerald-600 flex items-center justify-center mx-auto mb-4 shadow-sm">
+            <span class="material-symbols-outlined text-3xl sm:text-4xl">check_circle</span>
+          </div>
+
+          <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E0AC6B]/15 border border-[#E0AC6B]/40 text-[#1C3D63] text-xs font-bold uppercase tracking-wider mb-3">
+            <span>✨ რეგისტრაცია მიღებულია</span>
+          </div>
+
+          <h3 class="text-xl sm:text-2xl font-headline italic font-bold text-[#1C3D63] mb-2" id="global-success-modal-title">რეგისტრაცია წარმატებით დასრულდა!</h3>
+          <p class="text-xs sm:text-sm text-[#3B5E63] leading-relaxed mb-5" id="global-success-modal-desc">
+            გმადლობთ, <strong id="global-success-modal-name-text" class="text-[#1C3D63]"></strong>! თქვენი მონაცემები მიღებულია. ადმინისტრაცია მალე დაგიკავშირდებათ მითითებულ ნომერზე.
+          </p>
+
+          <div class="bg-[#FAF7F2]/80 border border-[#D8C4B6] rounded-2xl p-3.5 mb-5 text-left text-xs space-y-2">
+            <div class="flex items-center justify-between border-b border-[#D8C4B6]/40 pb-1.5" id="global-success-course-row">
+              <span class="text-[#8E8276] font-semibold">მიმართულება:</span>
+              <span id="global-success-modal-course-text" class="font-bold text-[#1C3D63] text-right truncate max-w-[200px]">-</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-[#8E8276] font-semibold">ტელეფონი:</span>
+              <span id="global-success-modal-phone-text" class="font-bold text-[#1C3D63] font-mono">-</span>
+            </div>
+          </div>
+
+          <div class="space-y-2.5">
+            <button type="button" id="global-success-modal-pay-btn" class="w-full bg-[#E0AC6B] hover:bg-[#d09955] text-[#1C3D63] py-3.5 px-5 rounded-xl font-bold text-xs sm:text-sm tracking-wider transition-all duration-200 shadow-md flex items-center justify-center gap-2 cursor-pointer active:scale-98">
+              <span class="material-symbols-outlined text-lg">account_balance_wallet</span>
+              <span>გადახდის რეკვიზიტების ნახვა</span>
+            </button>
+
+            <button type="button" id="global-success-modal-ok-btn" class="w-full bg-[#FAF7F2] hover:bg-[#F4F7F7] border border-[#D8C4B6] text-[#1C3D63] py-3 px-5 rounded-xl font-semibold text-xs sm:text-sm transition-all cursor-pointer">
+              დახურვა
+            </button>
+          </div>
+
+        </div>
+      </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    modal = document.getElementById('global-success-popup-modal');
+  }
+
+  const card = document.getElementById('global-success-popup-card');
+  const titleEl = document.getElementById('global-success-modal-title');
+  const nameEl = document.getElementById('global-success-modal-name-text');
+  const phoneEl = document.getElementById('global-success-modal-phone-text');
+  const courseEl = document.getElementById('global-success-modal-course-text');
+  const closeBtn = document.getElementById('global-close-success-modal-btn');
+  const okBtn = document.getElementById('global-success-modal-ok-btn');
+  const payBtn = document.getElementById('global-success-modal-pay-btn');
+
+  if (title && titleEl) titleEl.textContent = title;
+  if (name && nameEl) nameEl.textContent = name;
+  if (phone && phoneEl) phoneEl.textContent = phone;
+  if (course && courseEl) courseEl.textContent = course;
+
+  function closeModal() {
+    if (modal && card) {
+      modal.classList.add('opacity-0', 'pointer-events-none');
+      modal.classList.remove('opacity-100', 'pointer-events-auto');
+      card.classList.add('scale-95');
+      card.classList.remove('scale-100');
+    }
+    if (typeof onClose === 'function') onClose();
+  }
+
+  if (closeBtn) closeBtn.onclick = closeModal;
+  if (okBtn) okBtn.onclick = closeModal;
+  if (modal) {
+    modal.onclick = (e) => {
+      if (e.target === modal) closeModal();
+    };
+  }
+  if (payBtn) {
+    payBtn.onclick = () => {
+      closeModal();
+      if (typeof onPayClick === 'function') onPayClick();
+    };
+  }
+
+  if (modal && card) {
+    modal.classList.remove('opacity-0', 'pointer-events-none');
+    modal.classList.add('opacity-100', 'pointer-events-auto');
+    card.classList.remove('scale-95');
+    card.classList.add('scale-100');
+  }
+}
+window.showRegistrationSuccessModal = showRegistrationSuccessModal;
+
 const initAll = () => {
   initCookieConsent();
   initMobileMenu();
@@ -1428,6 +1529,29 @@ function initBookingModal() {
     if (togglePaymentBtn) {
       togglePaymentBtn.className = 'sm:w-auto bg-[#E0AC6B] hover:bg-[#d09955] text-[#1C3D63] border-2 border-[#1C3D63] active:scale-[0.99] py-4 px-5 rounded-2xl font-black text-xs sm:text-sm transition-all duration-300 shadow-lg flex items-center justify-center gap-2 cursor-pointer ring-4 ring-[#E0AC6B]/40 animate-pulse';
     }
+
+    // Open Success Popup Modal (პატარა ფანჯარა)
+    showRegistrationSuccessModal({
+      title: 'რეგისტრაცია წარმატებით დასრულდა!',
+      name: clientName,
+      phone: formattedPhone,
+      course: service ? `${service}${date ? ' (' + date + (time ? ' · ' + time : '') + ')' : ''}` : 'ვიზიტის დაჯავშნა',
+      onPayClick: () => {
+        if (paymentSection && paymentSection.classList.contains('hidden')) {
+          paymentSection.classList.remove('hidden');
+          if (paymentChevron) paymentChevron.style.transform = 'rotate(180deg)';
+        }
+        if (togglePaymentBtn) {
+          togglePaymentBtn.classList.remove('animate-pulse', 'ring-4', 'ring-[#E0AC6B]/40');
+          togglePaymentBtn.className = 'sm:w-auto bg-[#E0AC6B] text-[#1C3D63] border-2 border-[#1C3D63] active:scale-[0.99] py-4 px-5 rounded-2xl font-bold text-xs sm:text-sm transition-all duration-300 shadow-md flex items-center justify-center gap-2 cursor-pointer';
+        }
+        setTimeout(() => {
+          if (paymentSection) {
+            paymentSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }, 150);
+      }
+    });
   }
 
   if (step2Form) {

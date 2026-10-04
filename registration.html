@@ -875,6 +875,58 @@
     </div>
   </footer>
 
+  <!-- Registration Success Modal Popup (პატარა ფანჯარა წარმატებით დასრულებისთვის) -->
+  <div id="registration-success-modal" class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-[#1C3D63]/70 backdrop-blur-md opacity-0 pointer-events-none transition-all duration-300">
+    <div id="registration-success-card" class="bg-white rounded-[2rem] p-6 sm:p-8 max-w-md w-full shadow-[0px_25px_60px_rgba(28,61,99,0.35)] border border-[#D8C4B6] relative text-center transform scale-95 transition-all duration-300">
+      
+      <!-- Close Button -->
+      <button type="button" id="close-success-modal-btn" class="absolute top-5 right-5 w-9 h-9 rounded-full bg-[#FAF7F2] hover:bg-[#1C3D63] hover:text-white border border-[#D8C4B6] flex items-center justify-center text-[#1C3D63] transition-all cursor-pointer shadow-sm focus:outline-none" aria-label="ფანჯრის დახურვა">
+        <span class="material-symbols-outlined text-xl">close</span>
+      </button>
+
+      <!-- Success Icon -->
+      <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-emerald-50 border-2 border-emerald-200 text-emerald-600 flex items-center justify-center mx-auto mb-4 shadow-sm">
+        <span class="material-symbols-outlined text-3xl sm:text-4xl">check_circle</span>
+      </div>
+
+      <!-- Badge -->
+      <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E0AC6B]/15 border border-[#E0AC6B]/40 text-[#1C3D63] text-xs font-bold uppercase tracking-wider mb-3">
+        <span>✨ რეგისტრაცია მიღებულია</span>
+      </div>
+
+      <!-- Title & Main Message -->
+      <h3 class="text-xl sm:text-2xl font-headline italic font-bold text-[#1C3D63] mb-2">რეგისტრაცია წარმატებით დასრულდა!</h3>
+      <p class="text-xs sm:text-sm text-[#3B5E63] leading-relaxed mb-5">
+        გმადლობთ, <strong id="success-modal-name-text" class="text-[#1C3D63]"></strong>! თქვენი მონაცემები მიღებულია. ადმინისტრაცია მალე დაგიკავშირდებათ მითითებულ ნომერზე.
+      </p>
+
+      <!-- Details Summary Box -->
+      <div class="bg-[#FAF7F2]/80 border border-[#D8C4B6] rounded-2xl p-3.5 mb-5 text-left text-xs space-y-2">
+        <div class="flex items-center justify-between border-b border-[#D8C4B6]/40 pb-1.5">
+          <span class="text-[#8E8276] font-semibold">მიმართულება:</span>
+          <span id="success-modal-course-text" class="font-bold text-[#1C3D63] text-right truncate max-w-[200px]">-</span>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-[#8E8276] font-semibold">ტელეფონი:</span>
+          <span id="success-modal-phone-text" class="font-bold text-[#1C3D63] font-mono">-</span>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="space-y-2.5">
+        <button type="button" id="success-modal-pay-btn" class="w-full bg-[#E0AC6B] hover:bg-[#d09955] text-[#1C3D63] py-3.5 px-5 rounded-xl font-bold text-xs sm:text-sm tracking-wider transition-all duration-200 shadow-md flex items-center justify-center gap-2 cursor-pointer active:scale-98">
+          <span class="material-symbols-outlined text-lg">account_balance_wallet</span>
+          <span>გადახდის რეკვიზიტების ნახვა</span>
+        </button>
+
+        <button type="button" id="success-modal-ok-btn" class="w-full bg-[#FAF7F2] hover:bg-[#F4F7F7] border border-[#D8C4B6] text-[#1C3D63] py-3 px-5 rounded-xl font-semibold text-xs sm:text-sm transition-all cursor-pointer">
+          დახურვა
+        </button>
+      </div>
+
+    </div>
+  </div>
+
   <script>
     document.addEventListener("DOMContentLoaded", () => {
       // Configuration for Telegram Bot & Group Notifications
@@ -1343,6 +1395,9 @@
             submitBtn.className = "flex-1 bg-emerald-600 text-white py-4 px-6 rounded-2xl font-bold text-base transition-all duration-300 shadow-md flex items-center justify-center gap-2.5 cursor-default";
           }
 
+          // Open Success Popup Modal (პატარა ფანჯარა)
+          openSuccessModal(fullName, formattedPhone, course);
+
           // Smoothly reveal payment section so they can pay if they wish
           if (paymentSection && paymentSection.classList.contains("hidden")) {
             paymentSection.classList.remove("hidden");
@@ -1356,6 +1411,71 @@
               submitBtn.className = "flex-1 bg-[#1C3D63] hover:bg-[#254F7F] active:scale-[0.99] text-white py-4 px-6 rounded-2xl font-bold text-base transition-all duration-300 shadow-md flex items-center justify-center gap-2.5 cursor-pointer";
             }
           }, 6000);
+        });
+      }
+
+      // Success Popup Modal Functions & Listeners
+      function openSuccessModal(fullName, phone, course) {
+        const modal = document.getElementById("registration-success-modal");
+        const card = document.getElementById("registration-success-card");
+        const nameEl = document.getElementById("success-modal-name-text");
+        const phoneEl = document.getElementById("success-modal-phone-text");
+        const courseEl = document.getElementById("success-modal-course-text");
+
+        if (nameEl) nameEl.textContent = fullName;
+        if (phoneEl) phoneEl.textContent = phone;
+        if (courseEl) courseEl.textContent = course || "ზოგადი რეგისტრაცია";
+
+        if (modal && card) {
+          modal.classList.remove("opacity-0", "pointer-events-none");
+          modal.classList.add("opacity-100", "pointer-events-auto");
+          card.classList.remove("scale-95");
+          card.classList.add("scale-100");
+        }
+      }
+
+      function closeSuccessModal() {
+        const modal = document.getElementById("registration-success-modal");
+        const card = document.getElementById("registration-success-card");
+        if (modal && card) {
+          modal.classList.add("opacity-0", "pointer-events-none");
+          modal.classList.remove("opacity-100", "pointer-events-auto");
+          card.classList.add("scale-95");
+          card.classList.remove("scale-100");
+        }
+      }
+
+      const closeSuccessModalBtn = document.getElementById("close-success-modal-btn");
+      const successModalOkBtn = document.getElementById("success-modal-ok-btn");
+      const successModalPayBtn = document.getElementById("success-modal-pay-btn");
+      const successModalEl = document.getElementById("registration-success-modal");
+
+      if (closeSuccessModalBtn) closeSuccessModalBtn.addEventListener("click", closeSuccessModal);
+      if (successModalOkBtn) successModalOkBtn.addEventListener("click", closeSuccessModal);
+      if (successModalEl) {
+        successModalEl.addEventListener("click", (e) => {
+          if (e.target === successModalEl) closeSuccessModal();
+        });
+      }
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") closeSuccessModal();
+      });
+
+      if (successModalPayBtn) {
+        successModalPayBtn.addEventListener("click", () => {
+          closeSuccessModal();
+          if (paymentSection && paymentSection.classList.contains("hidden")) {
+            paymentSection.classList.remove("hidden");
+            if (paymentChevron) paymentChevron.classList.add("rotate-180");
+          }
+          if (togglePaymentBtn) {
+            togglePaymentBtn.className = "sm:w-auto bg-[#E0AC6B] text-[#1C3D63] border-2 border-[#1C3D63] active:scale-[0.99] py-4 px-5 rounded-2xl font-bold text-xs sm:text-sm transition-all duration-300 shadow-md flex items-center justify-center gap-2 cursor-pointer";
+          }
+          setTimeout(() => {
+            if (paymentSection) {
+              paymentSection.scrollIntoView({ behavior: "smooth", block: "start" });
+            }
+          }, 150);
         });
       }
 
